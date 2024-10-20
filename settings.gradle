@@ -1,0 +1,3 @@
+rootProject.name = 'Fulcrum'
+include 'API','plugin','database','spigot','bungeecord','velocity'
+

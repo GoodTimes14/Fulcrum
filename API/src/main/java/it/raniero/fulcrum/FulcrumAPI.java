@@ -6,7 +6,7 @@ import it.raniero.fulcrum.utils.StartupProperties;
 
 public interface FulcrumAPI {
 
-    void start(StartupProperties startupProperties);
+    void start(FulcrumPlugin plugin);
 
     void createDatabase(DatabaseProperties databaseProperties);
 

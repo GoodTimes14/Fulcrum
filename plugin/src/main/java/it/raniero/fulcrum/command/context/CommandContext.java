@@ -1,24 +1,40 @@
 package it.raniero.fulcrum.command.context;
 
+import it.raniero.fulcrum.command.context.result.ContextResult;
+import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Setter
-public class CommandContext<S> implements ICommandContext<S> {
+public class CommandContext implements ICommandContext {
 
-    private S sender;
+    private final FulcrumSource source;
 
-    private List<Object> arguments;
+    private final List<Object> arguments;
+
+    private final String[] originalParameters;
+
+    private ContextResult result;
 
 
     @Override
-    public S sender() {
-        return sender;
+    public FulcrumSource source() {
+        return source;
     }
+
+    @Override
+    public String[] originalParameters() {
+        return originalParameters;
+    }
+
 
     @Override
     public <T> Optional<T> argument(int index, Class<T> type) {
@@ -41,4 +57,16 @@ public class CommandContext<S> implements ICommandContext<S> {
                     + argument.getClass().getSimpleName());
         }
     }
+
+    @Override
+    public void addArgument(Object object) {
+        arguments.add(object);
+    }
+
+    @Override
+    public ContextResult result() {
+        return result;
+    }
+
+
 }

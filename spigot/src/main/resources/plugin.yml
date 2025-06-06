@@ -1,0 +1,3 @@
+name: Fulcrum
+description: Redefine Pivot
+main: it.raniero.fulcrum.spigot.plugin.FulcrumSpigotPlugin

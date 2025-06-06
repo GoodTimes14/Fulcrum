@@ -1,4 +1,4 @@
-package it.raniero.fulcrum.command.scheme.enums;
+package it.raniero.fulcrum.command.context.source;
 
 public enum SourceType {
 

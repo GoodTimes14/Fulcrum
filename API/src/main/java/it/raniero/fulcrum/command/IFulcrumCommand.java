@@ -7,8 +7,9 @@ import it.raniero.fulcrum.server.FulcrumServer;
 
 public interface IFulcrumCommand {
 
+    void registerScheme(CommandScheme scheme);
 
-    void executeCommand(FulcrumServer server, FulcrumSource sender, String[] args);
+    void executeCommand(FulcrumServer server, FulcrumSource sender, String label, String[] args);
 
 
 }

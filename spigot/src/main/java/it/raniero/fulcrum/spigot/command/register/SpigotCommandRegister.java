@@ -16,13 +16,11 @@ import java.util.Map;
 public class SpigotCommandRegister implements ICommandRegister {
 
 
-    private FulcrumSpigot fulcrumSpigot;
     private final SimpleCommandMap commandMap;
 
 
     @SneakyThrows
-    public SpigotCommandRegister(FulcrumSpigot fulcrumSpigot) {
-        this.fulcrumSpigot = fulcrumSpigot;
+    public SpigotCommandRegister() {
         Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
         bukkitCommandMap.setAccessible(true);
         commandMap = (SimpleCommandMap) bukkitCommandMap.get(Bukkit.getServer());
@@ -34,7 +32,7 @@ public class SpigotCommandRegister implements ICommandRegister {
         FulcrumCommandSpigot fulcrumCommand = (FulcrumCommandSpigot) command;
 
         try {
-            commandMap.register(fulcrumCommand.plugin(),command.getExecutor());
+            commandMap.register(fulcrumCommand.plugin(),fulcrumCommand.getExecutor());
         } catch(Exception e) {
             e.printStackTrace();
         }

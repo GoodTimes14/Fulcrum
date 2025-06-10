@@ -15,14 +15,14 @@ public class ConversionManager implements IConversionManager {
 
     private final Fulcrum fulcrum;
 
-    private final Map<Class<?>,IConverter<?>> converters = new HashMap<>();
+    private final Map<String,IConverter<?>> converters = new HashMap<>();
 
 
     @Override
     public void init() {
         registerConverter(Double.class,new DoubleConverter());
         registerConverter(Integer.class,new IntegerConverter());
-        registerConverter(FulcrumSource.class,new PlayerConverter(fulcrum.getPlugin().getServer()));
+        registerConverter(FulcrumSource.class,new PlayerConverter(fulcrum.getPlugin().getFulcrumServer()));
         registerConverter(String.class,new StringConverter());
         registerConverter(UUID.class,new UUIDConverter());
         registerConverter(Long.class,new LongConverter());
@@ -30,24 +30,29 @@ public class ConversionManager implements IConversionManager {
 
     @Override
     public <T> void registerConverter(Class<T> type, IConverter<T> converter) {
-        converters.put(type,converter);
+        converters.put(type.getSimpleName(),converter);
     }
 
     @Override
     public boolean convertAndAddArgument(Class<?> type, String parameter, ICommandContext context) {
 
-        if (converters.containsKey(type)) {
+        context.source().sendMessage("Converting type: " + type.getSimpleName() + " " + parameter);
+        if (converters.containsKey(type.getSimpleName())) {
 
-            IConverter<?> converter = converters.get(type);
+            context.source().sendMessage("Found Converter!");
+            IConverter<?> converter = converters.get(type.getSimpleName());
             if(!converter.canConvert(parameter)) {
                 return false;
             }
 
             Object converted = converter.convert(parameter);
             context.addArgument(converted);
+            context.source().sendMessage("Converted argument " + converted);
 
-        } else if (type == fulcrum.getPlugin().getServer().getPlayerClass()) {
-            IConverter<?> converter = converters.get(FulcrumSource.class);
+            return true;
+
+        } else if (type == fulcrum.getPlugin().getFulcrumServer().getPlayerClass()) {
+            IConverter<?> converter = converters.get(FulcrumSource.class.getSimpleName());
 
             FulcrumSource source = (FulcrumSource) converter.convert(parameter);
             if (source == null) {
@@ -55,17 +60,18 @@ public class ConversionManager implements IConversionManager {
             }
 
             context.addArgument(null);
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T> IConverter<T> getConverterForArgumentType(Class<T> type) {
 
-        if (converters.containsKey(type)) {
-            return (IConverter<T>) converters.get(type);
+        if (converters.containsKey(type.getSimpleName())) {
+            return (IConverter<T>) converters.get(type.getSimpleName());
         }
 
         return null;

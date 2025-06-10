@@ -38,7 +38,7 @@ tasks.register('createFatJar',Jar) {
     dependsOn tasks.named('build')
 
     doFirst {
-        archiveBaseName = "Pivot"
+        archiveBaseName = "fulcrum-shaded"
 
 
         subprojects.each { subproject ->
@@ -63,7 +63,6 @@ tasks.register('createFatJar',Jar) {
     }
 
 }
-
 
 tasks.named('build') {
     dependsOn subprojects*.build

@@ -22,7 +22,7 @@ public class CommandContext implements ICommandContext {
 
     private final String[] originalParameters;
 
-    private ContextResult result;
+    private ContextResult result = ContextResult.OK;
 
 
     @Override
@@ -38,6 +38,9 @@ public class CommandContext implements ICommandContext {
 
     @Override
     public <T> Optional<T> argument(int index, Class<T> type) {
+        if (index >= arguments.size()) {
+            return Optional.empty();
+        }
 
         Object argument = arguments.get(index);
 
@@ -60,6 +63,8 @@ public class CommandContext implements ICommandContext {
 
     @Override
     public void addArgument(Object object) {
+        if (object == null) return;
+
         arguments.add(object);
     }
 

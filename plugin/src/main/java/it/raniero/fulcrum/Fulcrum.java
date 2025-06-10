@@ -23,6 +23,7 @@ public class Fulcrum implements FulcrumAPI {
     @Override
     public void start(FulcrumPlugin plugin) {
         this.plugin = plugin;
+        conversionManager.init();
     }
 
     @Override

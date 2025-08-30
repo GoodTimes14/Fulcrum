@@ -3,15 +3,13 @@ package it.raniero.fulcrum.conversion.impl;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.conversion.IConverter;
 import it.raniero.fulcrum.server.FulcrumServer;
-import lombok.RequiredArgsConstructor;
-
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class PlayerConverter implements IConverter<FulcrumSource> {
 
     private final FulcrumServer server;
-
 
     @Override
     public Class<FulcrumSource> type() {
@@ -29,7 +27,6 @@ public class PlayerConverter implements IConverter<FulcrumSource> {
         } catch (IllegalArgumentException e) {
             return server.getOnlinePlayer(name);
         }
-
     }
 
     @Override

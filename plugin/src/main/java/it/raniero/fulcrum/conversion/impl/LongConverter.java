@@ -10,13 +10,13 @@ public class LongConverter implements IConverter<Long> {
 
     @Override
     public Long convert(String string) {
-        return Long.parseLong(string,10);
+        return Long.parseLong(string, 10);
     }
 
     @Override
     public boolean canConvert(String string) {
         try {
-            long l = Long.parseLong(string,10);
+            long l = Long.parseLong(string, 10);
             return true;
         } catch (NumberFormatException e) {
             return false;

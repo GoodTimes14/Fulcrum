@@ -7,17 +7,14 @@ import it.raniero.fulcrum.server.FulcrumServer;
 import it.raniero.fulcrum.spigot.command.impl.MainCommand;
 import it.raniero.fulcrum.spigot.command.register.SpigotCommandRegister;
 import it.raniero.fulcrum.spigot.server.FulcrumServerSpigot;
-import it.raniero.fulcrum.utils.StartupProperties;
 import lombok.Getter;
-import org.bukkit.craftbukkit.Main;
 import org.bukkit.plugin.java.JavaPlugin;
-
 
 @Getter
 public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
 
-
-    private final FulcrumServer fulcrumServer = new FulcrumServerSpigot();;
+    private final FulcrumServer fulcrumServer = new FulcrumServerSpigot();
+    ;
 
     private SpigotCommandRegister commandRegister;
 

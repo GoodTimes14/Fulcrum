@@ -1,18 +1,15 @@
 package it.raniero.fulcrum.spigot.server;
 
-import com.google.common.base.Predicates;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.server.FulcrumServer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 @Getter
 public class FulcrumServerSpigot implements FulcrumServer {
@@ -43,7 +40,6 @@ public class FulcrumServerSpigot implements FulcrumServer {
         return names;
     }
 
-
     @Override
     public FulcrumSource getOnlinePlayer(String name) {
         return null;
@@ -63,6 +59,4 @@ public class FulcrumServerSpigot implements FulcrumServer {
     public void setPlayerVisibilityPredicate(Predicate<UUID> predicate) {
         playerVisibilityPredicate = predicate;
     }
-
-
 }

@@ -4,7 +4,6 @@ import it.raniero.fulcrum.command.context.ICommandContext;
 
 public interface IConversionManager {
 
-
     void init();
 
     <T> void registerConverter(Class<T> type, IConverter<T> converter);
@@ -12,6 +11,4 @@ public interface IConversionManager {
     boolean convertAndAddArgument(Class<?> type, String parameter, ICommandContext context);
 
     <T> IConverter<T> getConverterForArgumentType(Class<T> type);
-
-
 }

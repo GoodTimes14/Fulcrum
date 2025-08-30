@@ -1,0 +1,3 @@
+plugins {
+    fulcrum.`base-conventions`
+}

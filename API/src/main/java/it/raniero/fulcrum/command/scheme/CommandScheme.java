@@ -1,25 +1,22 @@
 package it.raniero.fulcrum.command.scheme;
 
 import it.raniero.fulcrum.command.context.ICommandContext;
-import it.raniero.fulcrum.command.scheme.argument.Argument;
-import it.raniero.fulcrum.command.scheme.argument.impl.NormalArgument;
 import it.raniero.fulcrum.command.context.source.SourceType;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
+import it.raniero.fulcrum.command.scheme.argument.Argument;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Builder
 @Getter
 @Setter
 @Accessors(fluent = true)
 public class CommandScheme {
-
 
     private final Consumer<ICommandContext> commandExecutor;
 
@@ -37,7 +34,6 @@ public class CommandScheme {
 
     private CommandScheme parent;
 
-
     public static class CommandSchemeBuilder {
 
         private LinkedHashMap<String, Argument> arguments = new LinkedHashMap<>();
@@ -46,17 +42,21 @@ public class CommandScheme {
 
         public CommandSchemeBuilder argument(Argument argument) {
 
-            arguments.put(argument.name(),argument);
+            arguments.put(argument.name(), argument);
             return this;
         }
 
-
         public CommandSchemeBuilder subCommand(CommandScheme scheme) {
 
-            scheme.parent(scheme);
-            subCommands.put(scheme.label(),scheme);
+            subCommands.put(scheme.label(), scheme);
             return this;
         }
     }
 
+    public void parentizeSubCommands() {
+        for (CommandScheme subCommand : subCommands.values()) {
+            subCommand.parent(this);
+            subCommand.parentizeSubCommands();
+        }
+    }
 }

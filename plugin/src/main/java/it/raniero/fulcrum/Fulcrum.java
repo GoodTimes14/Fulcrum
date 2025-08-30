@@ -2,19 +2,14 @@ package it.raniero.fulcrum;
 
 import it.raniero.fulcrum.command.context.ICommandContext;
 import it.raniero.fulcrum.command.manager.CommandManager;
-import it.raniero.fulcrum.command.scheme.CommandScheme;
-import it.raniero.fulcrum.command.scheme.argument.impl.NormalArgument;
 import it.raniero.fulcrum.conversion.ConversionManager;
 import it.raniero.fulcrum.conversion.IConversionManager;
-import it.raniero.fulcrum.server.FulcrumServer;
 import it.raniero.fulcrum.utils.DatabaseProperties;
 import it.raniero.fulcrum.utils.RedisProperties;
-import it.raniero.fulcrum.utils.StartupProperties;
 import lombok.Getter;
 
 @Getter
 public class Fulcrum implements FulcrumAPI {
-
 
     private final IConversionManager conversionManager = new ConversionManager(this);
     private final CommandManager commandManager = new CommandManager();
@@ -27,21 +22,13 @@ public class Fulcrum implements FulcrumAPI {
     }
 
     @Override
-    public void createDatabase(DatabaseProperties databaseProperties) {
-
-    }
+    public void createDatabase(DatabaseProperties databaseProperties) {}
 
     @Override
-    public void createRedis(RedisProperties redisProperties) {
+    public void createRedis(RedisProperties redisProperties) {}
 
-    }
-
-    public void help(ICommandContext context) {
-
-    }
+    public void help(ICommandContext context) {}
 
     @Override
-    public void stop() {
-
-    }
+    public void stop() {}
 }

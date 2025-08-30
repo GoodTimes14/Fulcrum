@@ -1,10 +1,9 @@
 package it.raniero.fulcrum.conversion.impl;
 
 import it.raniero.fulcrum.conversion.IConverter;
-
 import java.util.UUID;
 
-public class UUIDConverter  implements IConverter<UUID> {
+public class UUIDConverter implements IConverter<UUID> {
     @Override
     public Class<UUID> type() {
         return UUID.class;

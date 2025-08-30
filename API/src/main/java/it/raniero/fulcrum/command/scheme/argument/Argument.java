@@ -6,9 +6,12 @@ import it.raniero.fulcrum.server.FulcrumServer;
 
 public interface Argument {
 
-
     String name();
 
-    void compileArgument(int index, IConversionManager conversionManager, FulcrumServer server, ICommandContext context);
+    String description();
 
+    boolean required();
+
+    void compileArgument(
+            int index, IConversionManager conversionManager, FulcrumServer server, ICommandContext context);
 }

@@ -2,15 +2,10 @@ package it.raniero.fulcrum.command.context;
 
 import it.raniero.fulcrum.command.context.result.ContextResult;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @RequiredArgsConstructor
 @Setter
@@ -24,7 +19,6 @@ public class CommandContext implements ICommandContext {
 
     private ContextResult result = ContextResult.OK;
 
-
     @Override
     public FulcrumSource source() {
         return source;
@@ -34,7 +28,6 @@ public class CommandContext implements ICommandContext {
     public String[] originalParameters() {
         return originalParameters;
     }
-
 
     @Override
     public <T> Optional<T> argument(int index, Class<T> type) {
@@ -50,7 +43,7 @@ public class CommandContext implements ICommandContext {
 
         try {
 
-            T castArgument =  type.cast(argument);
+            T castArgument = type.cast(argument);
 
             return Optional.of(castArgument);
 
@@ -72,6 +65,4 @@ public class CommandContext implements ICommandContext {
     public ContextResult result() {
         return result;
     }
-
-
 }

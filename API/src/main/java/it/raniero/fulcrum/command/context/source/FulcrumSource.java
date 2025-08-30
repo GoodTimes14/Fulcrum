@@ -7,5 +7,4 @@ public interface FulcrumSource {
     void sendMessage(String text);
 
     SourceType sourceType();
-
 }

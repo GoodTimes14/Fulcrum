@@ -2,8 +2,6 @@ package it.raniero.fulcrum.command.context;
 
 import it.raniero.fulcrum.command.context.result.ContextResult;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
-
-import java.util.List;
 import java.util.Optional;
 
 public interface ICommandContext {
@@ -19,7 +17,4 @@ public interface ICommandContext {
     ContextResult result();
 
     void setResult(ContextResult result);
-
-
 }
-

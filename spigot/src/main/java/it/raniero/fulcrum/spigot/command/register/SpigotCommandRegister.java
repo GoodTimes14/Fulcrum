@@ -1,23 +1,16 @@
 package it.raniero.fulcrum.spigot.command.register;
 
-import it.raniero.fulcrum.command.FulcrumCommand;
 import it.raniero.fulcrum.command.IFulcrumCommand;
 import it.raniero.fulcrum.command.manager.ICommandRegister;
-import it.raniero.fulcrum.spigot.FulcrumSpigot;
 import it.raniero.fulcrum.spigot.command.FulcrumCommandSpigot;
+import java.lang.reflect.Field;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 public class SpigotCommandRegister implements ICommandRegister {
 
-
     private final SimpleCommandMap commandMap;
-
 
     @SneakyThrows
     public SpigotCommandRegister() {
@@ -32,8 +25,8 @@ public class SpigotCommandRegister implements ICommandRegister {
         FulcrumCommandSpigot fulcrumCommand = (FulcrumCommandSpigot) command;
 
         try {
-            commandMap.register(fulcrumCommand.plugin(),fulcrumCommand.getExecutor());
-        } catch(Exception e) {
+            commandMap.register(fulcrumCommand.plugin(), fulcrumCommand.getExecutor());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

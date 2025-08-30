@@ -4,7 +4,6 @@ import it.raniero.fulcrum.conversion.IConverter;
 
 public class DoubleConverter implements IConverter<Double> {
 
-
     @Override
     public Class<Double> type() {
         return Double.class;
@@ -25,4 +24,3 @@ public class DoubleConverter implements IConverter<Double> {
         }
     }
 }
-

@@ -12,5 +12,4 @@ public class FulcrumCommandException extends RuntimeException {
         super(message);
         this.command = command;
     }
-
 }

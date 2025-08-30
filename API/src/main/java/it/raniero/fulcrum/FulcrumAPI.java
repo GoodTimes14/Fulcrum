@@ -2,7 +2,6 @@ package it.raniero.fulcrum;
 
 import it.raniero.fulcrum.utils.DatabaseProperties;
 import it.raniero.fulcrum.utils.RedisProperties;
-import it.raniero.fulcrum.utils.StartupProperties;
 
 public interface FulcrumAPI {
 
@@ -13,6 +12,4 @@ public interface FulcrumAPI {
     void createRedis(RedisProperties redisProperties);
 
     void stop();
-
-
 }

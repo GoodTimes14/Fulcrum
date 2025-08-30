@@ -4,7 +4,6 @@ import it.raniero.fulcrum.conversion.IConverter;
 
 public class IntegerConverter implements IConverter<Integer> {
 
-
     @Override
     public Class<Integer> type() {
         return Integer.class;

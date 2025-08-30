@@ -4,33 +4,32 @@ import it.raniero.fulcrum.Fulcrum;
 import it.raniero.fulcrum.command.context.ICommandContext;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.conversion.impl.*;
-import lombok.RequiredArgsConstructor;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ConversionManager implements IConversionManager {
 
     private final Fulcrum fulcrum;
 
-    private final Map<String,IConverter<?>> converters = new HashMap<>();
-
+    private final Map<String, IConverter<?>> converters = new HashMap<>();
 
     @Override
     public void init() {
-        registerConverter(Double.class,new DoubleConverter());
-        registerConverter(Integer.class,new IntegerConverter());
-        registerConverter(FulcrumSource.class,new PlayerConverter(fulcrum.getPlugin().getFulcrumServer()));
-        registerConverter(String.class,new StringConverter());
-        registerConverter(UUID.class,new UUIDConverter());
-        registerConverter(Long.class,new LongConverter());
+        registerConverter(Double.class, new DoubleConverter());
+        registerConverter(Integer.class, new IntegerConverter());
+        registerConverter(
+                FulcrumSource.class, new PlayerConverter(fulcrum.getPlugin().getFulcrumServer()));
+        registerConverter(String.class, new StringConverter());
+        registerConverter(UUID.class, new UUIDConverter());
+        registerConverter(Long.class, new LongConverter());
     }
 
     @Override
     public <T> void registerConverter(Class<T> type, IConverter<T> converter) {
-        converters.put(type.getSimpleName(),converter);
+        converters.put(type.getSimpleName(), converter);
     }
 
     @Override
@@ -41,7 +40,7 @@ public class ConversionManager implements IConversionManager {
 
             context.source().sendMessage("Found Converter!");
             IConverter<?> converter = converters.get(type.getSimpleName());
-            if(!converter.canConvert(parameter)) {
+            if (!converter.canConvert(parameter)) {
                 return false;
             }
 

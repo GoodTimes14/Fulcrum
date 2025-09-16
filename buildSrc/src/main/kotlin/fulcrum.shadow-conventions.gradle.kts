@@ -22,7 +22,7 @@ tasks.named<ShadowJar>("shadowJar") {
     relocate("org.reactivestreams", "it.raniero.fulcrum.libs.org.reactivestreams")
     relocate("reactor", "it.raniero.fulcrum.libs.reactor")
     relocate("ch.jalu", "it.raniero.fulcrum.libs.ch.jalu")
-
+    relocate("org.yaml", "it.raniero.fulcrum.libs.org.yaml")
 
     relocate("reactor", "it.raniero.fulcrum.libs.reactor")
 

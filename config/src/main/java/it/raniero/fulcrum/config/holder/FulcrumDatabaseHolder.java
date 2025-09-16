@@ -1,0 +1,31 @@
+package it.raniero.fulcrum.config.holder;
+
+import ch.jalu.configme.SettingsHolder;
+import ch.jalu.configme.properties.ListProperty;
+import ch.jalu.configme.properties.Property;
+import ch.jalu.configme.properties.types.BeanPropertyType;
+import it.raniero.fulcrum.database.properties.ConnectionType;
+import it.raniero.fulcrum.database.properties.DatabaseProperties;
+import java.util.ArrayList;
+import java.util.List;
+
+public class FulcrumDatabaseHolder implements SettingsHolder {
+
+    public static final Property<List<DatabaseProperties>> DATABASES;
+
+    static {
+        List<DatabaseProperties> databases = new ArrayList<>();
+
+        databases.add(DatabaseProperties.builder()
+                .connectionType(ConnectionType.SQL)
+                .name("test")
+                .host("localhost")
+                .port(3306)
+                .database("test")
+                .username("testuser")
+                .password("testpass")
+                .build());
+
+        DATABASES = new ListProperty<>("databases", BeanPropertyType.of(DatabaseProperties.class), databases);
+    }
+}

@@ -28,6 +28,7 @@ public abstract class FulcrumCommandSpigot extends FulcrumCommand {
         super.registerScheme(scheme);
         this.executor =
                 new FulcrumCommandExecutor(this, getFulcrum().getPlugin().getFulcrumServer());
+
         getFulcrum().getPlugin().getCommmandRegister().registerCommand(this);
     }
 

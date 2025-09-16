@@ -8,6 +8,7 @@ import it.raniero.fulcrum.command.context.source.SourceType;
 import it.raniero.fulcrum.command.exception.FulcrumCommandException;
 import it.raniero.fulcrum.command.scheme.CommandScheme;
 import it.raniero.fulcrum.command.scheme.argument.Argument;
+import it.raniero.fulcrum.config.holder.FulcrumMessagesHolder;
 import it.raniero.fulcrum.server.FulcrumServer;
 import java.util.*;
 import lombok.Getter;
@@ -44,6 +45,8 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
 
         if (commandScheme.source() != SourceType.ALL && source.sourceType() != commandScheme.source()) {
             // ERROR
+            source.sendMessage(fulcrum.getMainConfig()
+                    .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_SOURCE));
         }
 
         CommandContext context = new CommandContext(source, new LinkedList<>(), args);
@@ -61,7 +64,6 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
                 arguments = currentScheme.arguments();
                 iterator = arguments.entrySet().iterator();
 
-                source.sendMessage("Found subcommand " + currentScheme.label());
                 continue;
 
             } else {
@@ -74,8 +76,11 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
                 entry.getValue().compileArgument(i, fulcrum.getConversionManager(), server, context);
 
                 if (context.result() == ContextResult.INVALID_ARGUMENTS) {
+
+                    source.sendMessage(fulcrum.getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_ARGUMENTS));
+
                     sendCommandUsage(source, label, currentScheme);
-                    // SEND ERROR MESSAGE
                     break;
                 }
             }

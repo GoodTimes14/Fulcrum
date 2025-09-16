@@ -1,9 +1,10 @@
 plugins {
     fulcrum.`base-conventions`
+    fulcrum.`shadow-conventions`
+
 }
 
 dependencies {
-    implementation("ch.jalu:configme:1.4.1")
-
+    implementation(libs.configme)
     compileOnly(project(":API"))
 }

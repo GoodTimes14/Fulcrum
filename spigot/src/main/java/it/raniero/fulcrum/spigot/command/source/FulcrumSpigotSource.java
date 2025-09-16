@@ -2,6 +2,7 @@ package it.raniero.fulcrum.spigot.command.source;
 
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.command.context.source.SourceType;
+import it.raniero.fulcrum.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,7 +19,7 @@ public class FulcrumSpigotSource implements FulcrumSource {
 
     @Override
     public void sendMessage(String text) {
-        sender.sendMessage(text);
+        sender.sendMessage(MessageUtils.tranlateColors(text));
     }
 
     @Override

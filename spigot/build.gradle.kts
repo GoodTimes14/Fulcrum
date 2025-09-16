@@ -9,9 +9,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT")
+    compileOnly(libs.spigot)
     implementation(project(":API"))
     implementation(project(":plugin"))
+    implementation(project(":database"))
     implementation(project(":config"))
 
 }

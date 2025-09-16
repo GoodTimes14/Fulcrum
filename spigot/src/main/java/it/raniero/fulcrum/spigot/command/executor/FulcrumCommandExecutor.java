@@ -29,7 +29,6 @@ public class FulcrumCommandExecutor extends BukkitCommand {
     public boolean execute(CommandSender sender, String label, String[] args) {
 
         fulcrumCommand.executeCommand(fulcrumServer, new FulcrumSpigotSource(sender), label, args);
-
         return true;
     }
 }

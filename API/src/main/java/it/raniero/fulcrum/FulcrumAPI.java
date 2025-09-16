@@ -1,6 +1,6 @@
 package it.raniero.fulcrum;
 
-import it.raniero.fulcrum.utils.DatabaseProperties;
+import it.raniero.fulcrum.database.properties.DatabaseProperties;
 import it.raniero.fulcrum.utils.RedisProperties;
 
 public interface FulcrumAPI {

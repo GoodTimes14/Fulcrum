@@ -120,6 +120,7 @@ public class HikariConnection implements RelationalConnection {
         }
     }
 
+    @Override
     public void asyncInteraction(Consumer<RelationalInteraction> interactionConsumer) {
         try {
 

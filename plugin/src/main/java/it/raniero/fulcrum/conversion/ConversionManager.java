@@ -66,6 +66,32 @@ public class ConversionManager implements IConversionManager {
     }
 
     @Override
+    public Object convertArgument(Class<?> type, String parameter) {
+
+        if (converters.containsKey(type.getSimpleName())) {
+
+            IConverter<?> converter = converters.get(type.getSimpleName());
+            if (!converter.canConvert(parameter)) {
+                return false;
+            }
+
+            return converter.convert(parameter);
+
+        } else if (type == fulcrum.getPlugin().getFulcrumServer().getPlayerClass()) {
+            IConverter<?> converter = converters.get(FulcrumSource.class.getSimpleName());
+
+            FulcrumSource source = (FulcrumSource) converter.convert(parameter);
+            if (source == null) {
+                return null;
+            }
+
+            return null;
+        }
+
+        return null;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T> IConverter<T> getConverterForArgumentType(Class<T> type) {
 

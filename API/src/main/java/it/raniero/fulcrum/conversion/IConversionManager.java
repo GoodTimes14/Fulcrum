@@ -10,5 +10,7 @@ public interface IConversionManager {
 
     boolean convertAndAddArgument(Class<?> type, String parameter, ICommandContext context);
 
+    Object convertArgument(Class<?> type, String parameter);
+
     <T> IConverter<T> getConverterForArgumentType(Class<T> type);
 }

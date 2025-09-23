@@ -9,7 +9,9 @@ import java.util.Arrays;
 import lombok.Builder;
 
 @Builder
-public record NormalArgument(String name, Class<?> type, boolean required, String description) implements Argument {
+public record NormalArgument(
+        String name, Class<?> type, boolean required, boolean suggestPlayersInTab, String description)
+        implements Argument {
 
     @Override
     public void compileArgument(
@@ -20,6 +22,8 @@ public record NormalArgument(String name, Class<?> type, boolean required, Strin
                     Arrays.copyOfRange(context.originalParameters(), index, context.originalParameters().length);
             context.addArgument(copy);
         } else {
+
+            if (type == server.getPlayerClass()) {}
 
             String parameter = context.originalParameters()[index];
 

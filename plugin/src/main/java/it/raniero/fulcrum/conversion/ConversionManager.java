@@ -35,10 +35,8 @@ public class ConversionManager implements IConversionManager {
     @Override
     public boolean convertAndAddArgument(Class<?> type, String parameter, ICommandContext context) {
 
-        context.source().sendMessage("Converting type: " + type.getSimpleName() + " " + parameter);
         if (converters.containsKey(type.getSimpleName())) {
 
-            context.source().sendMessage("Found Converter!");
             IConverter<?> converter = converters.get(type.getSimpleName());
             if (!converter.canConvert(parameter)) {
                 return false;
@@ -46,7 +44,6 @@ public class ConversionManager implements IConversionManager {
 
             Object converted = converter.convert(parameter);
             context.addArgument(converted);
-            context.source().sendMessage("Converted argument " + converted);
 
             return true;
 
@@ -58,7 +55,7 @@ public class ConversionManager implements IConversionManager {
                 return false;
             }
 
-            context.addArgument(null);
+            context.addArgument(source.getSourceObject());
             return true;
         }
 

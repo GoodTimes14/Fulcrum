@@ -3,7 +3,6 @@ package it.raniero.fulcrum.conversion.impl;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.conversion.IConverter;
 import it.raniero.fulcrum.server.FulcrumServer;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -19,14 +18,7 @@ public class PlayerConverter implements IConverter<FulcrumSource> {
     @Override
     public FulcrumSource convert(String name) {
 
-        try {
-
-            UUID uuid = UUID.fromString(name);
-            return server.getOnlinePlayer(uuid);
-
-        } catch (IllegalArgumentException e) {
-            return server.getOnlinePlayer(name);
-        }
+        return server.getOnlinePlayer(name);
     }
 
     @Override

@@ -71,6 +71,13 @@ public abstract class FulcrumCommandSpigot extends FulcrumCommand {
             commandComponent.addExtra(" ");
             commandComponent.addExtra(component);
         }
+
+        String description = scheme.description() == null ? "No description provided." : scheme.description();
+
+        if (scheme.description() != null) {
+            commandComponent.addExtra(ChatColor.DARK_GRAY + " - " + ChatColor.GRAY + description);
+        }
+
         if (sender instanceof Player player) {
 
             player.spigot().sendMessage(commandComponent);

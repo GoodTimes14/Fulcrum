@@ -12,7 +12,8 @@ public record GroupedArgument(String name, Class<?> type, boolean required, Stri
         implements Argument {
 
     @Override
-    public void compileArgument(int index, IConversionManager conversionManager, FulcrumServer server, ICommandContext context) {
+    public void compileArgument(
+            int index, IConversionManager conversionManager, FulcrumServer server, ICommandContext context) {
         String parameter = context.originalParameters()[index];
 
         Object result = conversionManager.convertArgument(type, parameter);
@@ -21,7 +22,6 @@ public record GroupedArgument(String name, Class<?> type, boolean required, Stri
         } else {
             context.addArgument(result);
         }
-
     }
 
     private boolean isValueIncluded(Object input) {
@@ -32,5 +32,4 @@ public record GroupedArgument(String name, Class<?> type, boolean required, Stri
         }
         return false;
     }
-
 }

@@ -2,6 +2,7 @@ package it.raniero.fulcrum.spigot.server;
 
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.server.FulcrumServer;
+import it.raniero.fulcrum.spigot.command.source.FulcrumSpigotSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,8 +32,9 @@ public class FulcrumServerSpigot implements FulcrumServer {
 
         List<String> names = new ArrayList<>();
 
+        pattern = pattern.toLowerCase();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getName().startsWith(pattern)) {
+            if (player.getName().toLowerCase().startsWith(pattern)) {
                 names.add(player.getName());
             }
         }
@@ -42,12 +44,12 @@ public class FulcrumServerSpigot implements FulcrumServer {
 
     @Override
     public FulcrumSource getOnlinePlayer(String name) {
-        return null;
+        return new FulcrumSpigotSource(Bukkit.getPlayer(name));
     }
 
     @Override
     public FulcrumSource getOnlinePlayer(UUID uuid) {
-        return null;
+        return new FulcrumSpigotSource(Bukkit.getPlayer(uuid));
     }
 
     @Override

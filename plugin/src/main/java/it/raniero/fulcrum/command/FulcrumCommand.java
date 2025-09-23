@@ -8,8 +8,11 @@ import it.raniero.fulcrum.command.context.source.SourceType;
 import it.raniero.fulcrum.command.exception.FulcrumCommandException;
 import it.raniero.fulcrum.command.scheme.CommandScheme;
 import it.raniero.fulcrum.command.scheme.argument.Argument;
+import it.raniero.fulcrum.command.scheme.argument.impl.GroupedArgument;
+import it.raniero.fulcrum.command.scheme.argument.impl.NormalArgument;
 import it.raniero.fulcrum.config.holder.FulcrumMessagesHolder;
 import it.raniero.fulcrum.server.FulcrumServer;
+import it.raniero.fulcrum.utils.CommandUtils;
 import java.util.*;
 import lombok.Getter;
 
@@ -97,6 +100,78 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         if (context.result() == ContextResult.OK) {
             currentScheme.commandExecutor().accept(context);
         }
+    }
+
+    @Override
+    public List<String> executeTabCompletion(FulcrumServer server, FulcrumSource source, String label, String[] args) {
+        if (commandScheme == null) {
+            throw new FulcrumCommandException(this, "CommandScheme is not registered");
+        }
+
+        if (commandScheme.source() != SourceType.ALL && source.sourceType() != commandScheme.source()) {
+            // ERROR
+            source.sendMessage(fulcrum.getMainConfig()
+                    .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_SOURCE));
+        }
+
+        LinkedList<String> linkedArgs = new LinkedList<>(Arrays.asList(args));
+        int commandDepth = args.length - linkedArgs.size();
+        CommandScheme currentScheme = getCurrentScheme(linkedArgs);
+        List<Argument> commandArguments =
+                new ArrayList<>(currentScheme.arguments().values());
+
+        //        System.out.println("tab completion #1");
+        //        System.out.println("linkedArgs: " + linkedArgs);
+        //        System.out.println("Command Arguments: " + commandArguments);
+
+        String lastInput = linkedArgs.isEmpty() ? "" : linkedArgs.getLast();
+        Argument lastArgument = commandArguments.get(commandArguments.size() - 1);
+        Set<String> output = new HashSet<>();
+
+        if (!commandArguments.isEmpty() && linkedArgs.size() <= commandArguments.size()) {
+            if (lastArgument instanceof GroupedArgument groupedArgument) {
+
+                List<String> strings = new ArrayList<>(Arrays.stream(groupedArgument.values())
+                        .map(Object::toString)
+                        .toList());
+
+                CommandUtils.filterStringsByInput(lastInput, strings);
+                output.addAll(strings);
+
+            } else if (lastArgument instanceof NormalArgument normalArgument) {
+
+                if (normalArgument.type() == server.getPlayerClass() || normalArgument.suggestPlayersInTab()) {
+                    output.addAll(server.getOnlinePlayerNames(lastInput));
+                }
+            }
+        }
+
+        if (commandDepth == linkedArgs.size() - 1) {
+            output.addAll(CommandUtils.filterStringsByInput(
+                    lastInput,
+                    new ArrayList<>(
+                            currentScheme.subCommands().keySet().stream().toList())));
+        }
+
+        return new ArrayList<>(output);
+    }
+
+    private CommandScheme getCurrentScheme(LinkedList<String> args) {
+        CommandScheme currentScheme = commandScheme;
+
+        while (!args.isEmpty()) {
+            String parameter = args.peekFirst();
+            if (currentScheme.subCommands().containsKey(parameter)) {
+
+                currentScheme = currentScheme.subCommands().get(parameter);
+                args.pollFirst();
+
+            } else {
+                break;
+            }
+        }
+
+        return currentScheme;
     }
 
     public abstract String plugin();

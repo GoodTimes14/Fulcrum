@@ -7,6 +7,7 @@ import it.raniero.fulcrum.command.scheme.CommandScheme;
 import it.raniero.fulcrum.command.scheme.argument.impl.NormalArgument;
 import it.raniero.fulcrum.spigot.command.FulcrumCommandSpigot;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public class MainCommand extends FulcrumCommandSpigot {
 
@@ -29,8 +30,8 @@ public class MainCommand extends FulcrumCommandSpigot {
     public void mainCommand(ICommandContext context) {
 
         Bukkit.broadcastMessage("suuuca");
-        int ciao = context.argument(0, Integer.class).orElse(10);
-        context.source().sendMessage("Testtttt " + ciao);
+        Player dayum = context.argument(0, Player.class).orElse(null);
+        context.source().sendMessage("Testtttt " + dayum);
     }
 
     @Override
@@ -48,12 +49,25 @@ public class MainCommand extends FulcrumCommandSpigot {
                                 .description("Prova argument")
                                 .required(true)
                                 .type(String.class)
-                                .required(false)
+                                .required(true)
+                                .suggestPlayersInTab(true)
+                                .build())
+                        .subCommand(CommandScheme.builder()
+                                .label("gaddayum")
+                                .commandExecutor(this::provaCommand)
+                                .argument(NormalArgument.builder()
+                                        .name("cccp")
+                                        .description("sssr")
+                                        .required(true)
+                                        .type(String.class)
+                                        .required(true)
+                                        .suggestPlayersInTab(true)
+                                        .build())
                                 .build())
                         .build())
                 .argument(NormalArgument.builder()
                         .name("sium")
-                        .type(Integer.class)
+                        .type(Player.class)
                         .required(true)
                         .description("Sium argument")
                         .build())

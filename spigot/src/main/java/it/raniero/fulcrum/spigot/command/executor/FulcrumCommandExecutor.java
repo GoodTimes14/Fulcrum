@@ -4,6 +4,7 @@ import it.raniero.fulcrum.command.FulcrumCommand;
 import it.raniero.fulcrum.server.FulcrumServer;
 import it.raniero.fulcrum.spigot.command.source.FulcrumSpigotSource;
 import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
 
@@ -30,5 +31,10 @@ public class FulcrumCommandExecutor extends BukkitCommand {
 
         fulcrumCommand.executeCommand(fulcrumServer, new FulcrumSpigotSource(sender), label, args);
         return true;
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String label, String[] args) throws IllegalArgumentException {
+        return fulcrumCommand.executeTabCompletion(fulcrumServer, new FulcrumSpigotSource(sender), label, args);
     }
 }

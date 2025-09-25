@@ -28,8 +28,6 @@ public abstract class FulcrumCommandSpigot extends FulcrumCommand {
         super.registerScheme(scheme);
         this.executor =
                 new FulcrumCommandExecutor(this, getFulcrum().getPlugin().getFulcrumServer());
-
-        getFulcrum().getPlugin().getCommmandRegister().registerCommand(this);
     }
 
     @Override
@@ -73,10 +71,7 @@ public abstract class FulcrumCommandSpigot extends FulcrumCommand {
         }
 
         String description = scheme.description() == null ? "No description provided." : scheme.description();
-
-        if (scheme.description() != null) {
-            commandComponent.addExtra(ChatColor.DARK_GRAY + " - " + ChatColor.GRAY + description);
-        }
+        commandComponent.addExtra(ChatColor.DARK_GRAY + " - " + ChatColor.GRAY + description);
 
         if (sender instanceof Player player) {
 

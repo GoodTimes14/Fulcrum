@@ -5,4 +5,8 @@ import it.raniero.fulcrum.command.IFulcrumCommand;
 public interface ICommandRegister {
 
     void registerCommand(IFulcrumCommand command);
+
+    void unregisterCommand(String name);
+
+    void unregisterCommands();
 }

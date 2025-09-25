@@ -6,7 +6,7 @@ public interface ICommandManager {
 
     void registerCommand(IFulcrumCommand command);
 
-    void unregisterCommand();
+    void unregisterCommand(String name);
 
     void unregisterAllCommands();
 }

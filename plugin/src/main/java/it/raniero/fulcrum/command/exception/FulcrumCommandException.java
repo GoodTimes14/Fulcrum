@@ -1,14 +1,14 @@
 package it.raniero.fulcrum.command.exception;
 
-import it.raniero.fulcrum.command.FulcrumCommand;
+import it.raniero.fulcrum.command.IFulcrumCommand;
 import lombok.Getter;
 
 @Getter
 public class FulcrumCommandException extends RuntimeException {
 
-    private final FulcrumCommand command;
+    private final IFulcrumCommand command;
 
-    public FulcrumCommandException(FulcrumCommand command, String message) {
+    public FulcrumCommandException(IFulcrumCommand command, String message) {
         super(message);
         this.command = command;
     }

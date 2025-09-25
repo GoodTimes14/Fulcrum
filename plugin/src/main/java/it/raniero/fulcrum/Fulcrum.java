@@ -17,7 +17,7 @@ public class Fulcrum implements FulcrumAPI {
 
     private final IConversionManager conversionManager = new ConversionManager(this);
 
-    private final CommandManager commandManager = new CommandManager();
+    private final CommandManager commandManager = new CommandManager(this);
 
     private FulcrumDatabase database;
 
@@ -58,6 +58,7 @@ public class Fulcrum implements FulcrumAPI {
 
     @Override
     public void stop() {
+        plugin.getCommmandRegister().unregisterCommands();
         database.closeConnections();
     }
 }

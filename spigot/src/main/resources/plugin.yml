@@ -1,5 +1,6 @@
 name: Fulcrum
 description: Redefine Pivot
 version: 1.0.0
+api-version: 1.13
 author: GoodTimes14
 main: it.raniero.fulcrum.spigot.FulcrumSpigot

@@ -23,7 +23,7 @@ public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
     @Override
     public void onLoad() {
         fulcrum = new Fulcrum();
-        commandRegister = new SpigotCommandRegister();
+        commandRegister = new SpigotCommandRegister(this);
     }
 
     @Override
@@ -34,6 +34,7 @@ public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
 
     @Override
     public void onDisable() {
+
         fulcrum.stop();
     }
 

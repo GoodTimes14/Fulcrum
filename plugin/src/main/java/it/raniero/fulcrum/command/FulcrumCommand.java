@@ -125,7 +125,7 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         //        System.out.println("Command Arguments: " + commandArguments);
 
         String lastInput = linkedArgs.isEmpty() ? "" : linkedArgs.getLast();
-        Argument lastArgument = commandArguments.get(commandArguments.size() - 1);
+        Argument lastArgument = commandArguments.isEmpty() ? null : commandArguments.get(commandArguments.size() - 1);
         Set<String> output = new HashSet<>();
 
         if (!commandArguments.isEmpty() && linkedArgs.size() <= commandArguments.size()) {
@@ -146,7 +146,7 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             }
         }
 
-        if (commandDepth == linkedArgs.size() - 1) {
+        if (linkedArgs.size() <= 1) {
             output.addAll(CommandUtils.filterStringsByInput(
                     lastInput,
                     new ArrayList<>(

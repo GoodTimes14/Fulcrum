@@ -3,21 +3,24 @@ package it.raniero.fulcrum.database.relational;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import it.raniero.fulcrum.database.properties.DatabaseProperties;
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Slf4j
 public class HikariConnection implements RelationalConnection {
 
     private HikariDataSource dataSource;
     private Logger logger;
-    private BlockingQueue<Consumer<Connection>> taskQueue = new LinkedBlockingQueue<>();
 
-    private Thread asyncThread;
+    private ExecutorService connectionThreadPool;
 
     @Override
     public void connect(DatabaseProperties properties, Logger logger) {
@@ -50,10 +53,10 @@ public class HikariConnection implements RelationalConnection {
 
         dataSource = new HikariDataSource(config);
 
-        asyncThread = new Thread(this::asyncQueue);
-        asyncThread.start();
 
-        logger.log(Level.FINE, "Connection to SQL Database established successfully");
+        connectionThreadPool = Executors.newFixedThreadPool(1);
+
+        logger.log(Level.FINE, "[" + properties.getName() + "]" + "Connection to SQL Database established successfully");
     }
 
     @Override
@@ -85,62 +88,70 @@ public class HikariConnection implements RelationalConnection {
     }
 
     @Override
-    public void asyncQueue() {
-        while (!Thread.currentThread().isInterrupted()) {
+    public Future<ResultSet> asyncQuery(Function<Connection, ResultSet> function) {
 
-            try {
+        Callable<ResultSet> resultTask = () -> {
 
-                Consumer<Connection> consumer = taskQueue.take();
-                executeAsyncStatement(consumer);
+            try (Connection connection = dataSource.getConnection()) {
 
-            } catch (InterruptedException e) {
+                return function.apply(connection);
 
-                Thread.currentThread().interrupt();
+            } catch (SQLException ex) {
+
+                logger.log(Level.SEVERE,"Error while executing an async query", ex);
+                return null;
             }
-        }
-    }
+        };
 
-    private void executeAsyncStatement(Consumer<Connection> consumer) {
-        try (Connection connection = dataSource.getConnection()) {
-
-            consumer.accept(connection);
-
-        } catch (SQLException ex) {
-
-            logger.log(Level.SEVERE, "Error while executing an async statement", ex);
-        }
+        return connectionThreadPool.submit(resultTask);
     }
 
     @Override
-    public void asyncStatement(Consumer<Connection> consumer) {
-        try {
-            taskQueue.put(consumer);
-        } catch (InterruptedException e) {
-            // Ignoriamo
-        }
+    public Future<Integer> asyncUpdate(Function<Connection, Integer> function) {
+
+        Callable<Integer> resultTask = () -> {
+
+            try (Connection connection = dataSource.getConnection()) {
+
+                return function.apply(connection);
+
+            } catch (SQLException ex) {
+
+                logger.log(Level.SEVERE, "Error while executing an async update", ex);
+                return null;
+            }
+        };
+
+        return connectionThreadPool.submit(resultTask);
     }
 
-    @Override
-    public void asyncInteraction(Consumer<RelationalInteraction> interactionConsumer) {
-        try {
 
-            Consumer<Connection> connectionConsumer = (connection) -> {
+    @Override
+    public Future<Void> asyncInteraction(Consumer<RelationalInteraction> interactionConsumer) {
+        Callable<Void> interactionTask = () -> {
+            try (Connection connection = dataSource.getConnection()) {
+
                 interactionConsumer.accept(new SQLInteraction(connection, logger));
-            };
+            } catch (SQLException ex) {
 
-            taskQueue.put(connectionConsumer);
+                logger.log(Level.SEVERE, "Error while executing an async interaction", ex);
+            }
 
-        } catch (InterruptedException e) {
-            // Ignoriamo
-        }
+            return null;
+        };
+
+        return connectionThreadPool.submit(interactionTask);
     }
 
     @Override
     public void close() {
-        asyncThread.interrupt();
-        while (!taskQueue.isEmpty()) {
-            executeAsyncStatement(taskQueue.poll());
+         connectionThreadPool.shutdown();
+        try {
+            connectionThreadPool.awaitTermination(20, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.warning("Thread pool was interrupted before its natural termination, some of the transactions may not have been executed correctly");
         }
+
         dataSource.close();
     }
 }

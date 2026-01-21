@@ -25,7 +25,6 @@ public class FulcrumDatabase implements IFulcrumDatabase {
     public void registerConnection(DatabaseProperties properties) {
         if (properties.getConnectionType() == ConnectionType.SQL) {
 
-            // Add hikari
             HikariConnection hikariConnection = new HikariConnection();
 
             try {
@@ -39,7 +38,6 @@ public class FulcrumDatabase implements IFulcrumDatabase {
 
         } else {
 
-            // Add redis
             try {
                 LettuceConnection lettuceConnection = new LettuceConnection(logger, properties);
 

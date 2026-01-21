@@ -1,6 +1,7 @@
 package it.raniero.fulcrum.command.scheme;
 
 import it.raniero.fulcrum.command.context.ICommandContext;
+import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.command.context.source.SourceType;
 import it.raniero.fulcrum.command.scheme.argument.Argument;
 import java.util.LinkedHashMap;
@@ -32,6 +33,8 @@ public class CommandScheme {
 
     private final LinkedHashMap<String, Argument> arguments;
 
+    private final String permission;
+
     private CommandScheme parent;
 
     public static class CommandSchemeBuilder {
@@ -59,4 +62,9 @@ public class CommandScheme {
             subCommand.parentizeSubCommands();
         }
     }
+
+    public boolean checkPermission(FulcrumSource source) {
+        return permission == null || source.hasPermission(permission);
+    }
+
 }

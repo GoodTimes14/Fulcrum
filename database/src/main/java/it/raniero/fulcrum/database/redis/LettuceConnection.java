@@ -50,6 +50,7 @@ public class LettuceConnection implements IRedisConnection {
             RedisCredentials credentials = RedisCredentials.just("default", properties.getPassword());
             uri.setCredentialsProvider(RedisCredentialsProvider.from(() -> credentials));
         }
+
         ClientResources res = DefaultClientResources.builder()
                 .ioThreadPoolSize(2)
                 .computationThreadPoolSize(4)

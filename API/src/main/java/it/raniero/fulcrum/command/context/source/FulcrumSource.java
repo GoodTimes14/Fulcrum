@@ -7,4 +7,6 @@ public interface FulcrumSource {
     void sendMessage(String text);
 
     SourceType sourceType();
+
+    boolean hasPermission(String permissionNode);
 }

@@ -64,6 +64,11 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             String parameter = args[i];
             if (searchingScheme && currentScheme.subCommands().containsKey(parameter)) {
                 currentScheme = currentScheme.subCommands().get(parameter);
+                if (!currentScheme.checkPermission(source)) {
+                    context.setResult(ContextResult.NO_PERMISSION);
+                    break;
+                }
+
                 arguments = currentScheme.arguments();
                 iterator = arguments.entrySet().iterator();
 
@@ -87,6 +92,13 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
                     break;
                 }
             }
+        }
+
+        if (context.result() == ContextResult.NO_PERMISSION || currentScheme.checkPermission(source)) {
+            context.setResult(ContextResult.NO_PERMISSION);
+            source.sendMessage(fulcrum.getMainConfig()
+                    .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.NO_PERMISSION_SOURCE));
+
         }
 
         if (iterator.hasNext()) {
@@ -115,18 +127,17 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         }
 
         LinkedList<String> linkedArgs = new LinkedList<>(Arrays.asList(args));
-        int commandDepth = args.length - linkedArgs.size();
         CommandScheme currentScheme = getCurrentScheme(linkedArgs);
         List<Argument> commandArguments =
                 new ArrayList<>(currentScheme.arguments().values());
 
-        //        System.out.println("tab completion #1");
-        //        System.out.println("linkedArgs: " + linkedArgs);
-        //        System.out.println("Command Arguments: " + commandArguments);
-
         String lastInput = linkedArgs.isEmpty() ? "" : linkedArgs.getLast();
         Argument lastArgument = commandArguments.isEmpty() ? null : commandArguments.get(commandArguments.size() - 1);
         Set<String> output = new HashSet<>();
+
+        if (!currentScheme.checkPermission(source)) {
+            return new ArrayList<>();
+        }
 
         if (!commandArguments.isEmpty() && linkedArgs.size() <= commandArguments.size()) {
             if (lastArgument instanceof GroupedArgument groupedArgument) {
@@ -149,8 +160,8 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         if (linkedArgs.size() <= 1) {
             output.addAll(CommandUtils.filterStringsByInput(
                     lastInput,
-                    new ArrayList<>(
-                            currentScheme.subCommands().keySet().stream().toList())));
+                    new ArrayList<>(currentScheme.subCommands().keySet().stream().filter(
+                                    name -> currentScheme.subCommands().get(name).checkPermission(source)).toList())));
         }
 
         return new ArrayList<>(output);

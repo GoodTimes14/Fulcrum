@@ -26,4 +26,9 @@ public class FulcrumSpigotSource implements FulcrumSource {
     public SourceType sourceType() {
         return sender instanceof Player ? SourceType.PLAYER : SourceType.CONSOLE;
     }
+
+    @Override
+    public boolean hasPermission(String permissionNode) {
+        return sender.hasPermission(permissionNode);
+    }
 }

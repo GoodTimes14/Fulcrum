@@ -22,14 +22,14 @@ public class CommandManager implements ICommandManager {
         }
 
         registeredCommands.put(command.scheme().label(), command);
-        fulcrum.getPlugin().getCommmandRegister().registerCommand(command);
+        fulcrum.getPlugin().getCommandRegister().registerCommand(command);
     }
 
     @Override
     public void unregisterCommand(String name) {
         IFulcrumCommand command = registeredCommands.remove(name);
         if (command != null) {
-            fulcrum.getPlugin().getCommmandRegister().unregisterCommand(name);
+            fulcrum.getPlugin().getCommandRegister().unregisterCommand(name);
         }
     }
 
@@ -37,7 +37,7 @@ public class CommandManager implements ICommandManager {
     public void unregisterAllCommands() {
         for (IFulcrumCommand command : registeredCommands.values()) {
             fulcrum.getPlugin()
-                    .getCommmandRegister()
+                    .getCommandRegister()
                     .unregisterCommand(command.scheme().label());
         }
 

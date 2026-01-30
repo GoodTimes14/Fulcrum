@@ -98,7 +98,6 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             context.setResult(ContextResult.NO_PERMISSION);
             source.sendMessage(fulcrum.getMainConfig()
                     .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.NO_PERMISSION_SOURCE));
-
         }
 
         if (iterator.hasNext()) {
@@ -160,8 +159,10 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         if (linkedArgs.size() <= 1) {
             output.addAll(CommandUtils.filterStringsByInput(
                     lastInput,
-                    new ArrayList<>(currentScheme.subCommands().keySet().stream().filter(
-                                    name -> currentScheme.subCommands().get(name).checkPermission(source)).toList())));
+                    new ArrayList<>(currentScheme.subCommands().keySet().stream()
+                            .filter(name ->
+                                    currentScheme.subCommands().get(name).checkPermission(source))
+                            .toList())));
         }
 
         return new ArrayList<>(output);

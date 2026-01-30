@@ -9,7 +9,7 @@ public interface FulcrumPlugin {
 
     FulcrumServer getFulcrumServer();
 
-    ICommandRegister getCommmandRegister();
+    ICommandRegister getCommandRegister();
 
     File getDataFolder();
 

@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -18,7 +20,10 @@ public class FulcrumDatabase implements IFulcrumDatabase {
 
     private final Logger logger;
 
+    @Getter
     private final Map<String, RelationalConnection> databaseConnections = new ConcurrentHashMap<>();
+
+    @Getter
     private final Map<String, IRedisConnection> redisConnections = new ConcurrentHashMap<>();
 
     @Override

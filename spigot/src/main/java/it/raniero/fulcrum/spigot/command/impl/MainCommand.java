@@ -5,9 +5,13 @@ import it.raniero.fulcrum.command.context.ICommandContext;
 import it.raniero.fulcrum.command.context.source.SourceType;
 import it.raniero.fulcrum.command.scheme.CommandScheme;
 import it.raniero.fulcrum.command.scheme.argument.impl.NormalArgument;
+import it.raniero.fulcrum.database.relational.RelationalConnection;
 import it.raniero.fulcrum.spigot.command.FulcrumCommandSpigot;
-import org.bukkit.Bukkit;
+import it.raniero.fulcrum.spigot.command.source.FulcrumSpigotSource;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import java.util.Map;
 
 public class MainCommand extends FulcrumCommandSpigot {
 
@@ -20,18 +24,27 @@ public class MainCommand extends FulcrumCommandSpigot {
         return "fulcrum";
     }
 
-    public void provaCommand(ICommandContext context) {
+    public void listConnections(ICommandContext context) {
 
-        String ciao = context.argument(0, String.class).orElse("defaultsss");
 
-        context.source().sendMessage("provaaaaaa: " + ciao);
-    }
+        StringBuilder connectionsMessage = new StringBuilder();
 
-    public void mainCommand(ICommandContext context) {
+        Map<String,RelationalConnection> connections = getFulcrum().getDatabase().getDatabaseConnections();
 
-        Bukkit.broadcastMessage("suuuca");
-        Player dayum = context.argument(0, Player.class).orElse(null);
-        context.source().sendMessage("Testtttt " + dayum);
+        connectionsMessage.append(ChatColor.GRAY + "There are " +
+                ChatColor.RED + connections.size() +
+                ChatColor.GRAY + " connections available:\n");
+        long timestamp = System.currentTimeMillis();
+        for (Map.Entry<String, RelationalConnection> entry : getFulcrum().getDatabase().getDatabaseConnections().entrySet()) {
+            long delta = timestamp - entry.getValue().getLastActionTime();
+            connectionsMessage
+                    .append("&7" + entry.getKey() +
+                            " &8- &7Last Action &e" + delta + "ms").append("\n");
+        }
+
+
+        context.source().sendMessage(connectionsMessage.toString());
+
     }
 
     @Override
@@ -40,36 +53,10 @@ public class MainCommand extends FulcrumCommandSpigot {
                 .label("fulcrum")
                 .source(SourceType.ALL)
                 .description("Main Fulcrum command")
-                .commandExecutor(this::mainCommand)
                 .subCommand(CommandScheme.builder()
-                        .label("prova")
-                        .commandExecutor(this::provaCommand)
-                        .argument(NormalArgument.builder()
-                                .name("cazzo")
-                                .description("Prova argument")
-                                .required(true)
-                                .type(String.class)
-                                .required(true)
-                                .suggestPlayersInTab(true)
-                                .build())
-                        .subCommand(CommandScheme.builder()
-                                .label("gaddayum")
-                                .commandExecutor(this::provaCommand)
-                                .argument(NormalArgument.builder()
-                                        .name("cccp")
-                                        .description("sssr")
-                                        .required(true)
-                                        .type(String.class)
-                                        .required(true)
-                                        .suggestPlayersInTab(true)
-                                        .build())
-                                .build())
-                        .build())
-                .argument(NormalArgument.builder()
-                        .name("sium")
-                        .type(Player.class)
-                        .required(true)
-                        .description("Sium argument")
+                        .label("connections")
+                        .commandExecutor(this::listConnections)
+                        .description("List fulcrum active connections")
                         .build())
                 .build();
     }

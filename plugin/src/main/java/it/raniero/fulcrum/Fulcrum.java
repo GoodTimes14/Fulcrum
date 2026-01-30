@@ -58,7 +58,7 @@ public class Fulcrum implements FulcrumAPI {
 
     @Override
     public void stop() {
-        plugin.getCommmandRegister().unregisterCommands();
+        plugin.getCommandRegister().unregisterCommands();
         database.closeConnections();
     }
 }

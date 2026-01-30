@@ -3,8 +3,6 @@ package it.raniero.fulcrum.database.relational;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import it.raniero.fulcrum.database.properties.DatabaseProperties;
-import lombok.extern.slf4j.Slf4j;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,13 +12,18 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Slf4j
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
 public class HikariConnection implements RelationalConnection {
 
     private HikariDataSource dataSource;
     private Logger logger;
 
     private ExecutorService connectionThreadPool;
+
+    @Getter
+    private long lastActionTime;
 
     @Override
     public void connect(DatabaseProperties properties, Logger logger) {
@@ -53,14 +56,15 @@ public class HikariConnection implements RelationalConnection {
 
         dataSource = new HikariDataSource(config);
 
-
         connectionThreadPool = Executors.newFixedThreadPool(1);
 
-        logger.log(Level.FINE, "[" + properties.getName() + "]" + "Connection to SQL Database established successfully");
+        logger.log(
+                Level.FINE, "[" + properties.getName() + "]" + "Connection to SQL Database established successfully");
     }
 
     @Override
     public Connection getConnection() {
+        lastActionTime = System.currentTimeMillis();
         try {
             return dataSource.getConnection();
         } catch (SQLException e) {
@@ -72,11 +76,11 @@ public class HikariConnection implements RelationalConnection {
 
     @Override
     public RelationalInteraction createInteraction(boolean autoCommit) {
-
         try {
 
             SQLInteraction interaction = new SQLInteraction(getConnection(), logger);
             interaction.autoCommit(autoCommit);
+            lastActionTime = System.currentTimeMillis();
 
             return interaction;
 
@@ -89,16 +93,15 @@ public class HikariConnection implements RelationalConnection {
 
     @Override
     public Future<ResultSet> asyncQuery(Function<Connection, ResultSet> function) {
-
+        lastActionTime = System.currentTimeMillis();
         Callable<ResultSet> resultTask = () -> {
-
             try (Connection connection = dataSource.getConnection()) {
 
                 return function.apply(connection);
 
             } catch (SQLException ex) {
 
-                logger.log(Level.SEVERE,"Error while executing an async query", ex);
+                logger.log(Level.SEVERE, "Error while executing an async query", ex);
                 return null;
             }
         };
@@ -109,8 +112,8 @@ public class HikariConnection implements RelationalConnection {
     @Override
     public Future<Integer> asyncUpdate(Function<Connection, Integer> function) {
 
+        lastActionTime = System.currentTimeMillis();
         Callable<Integer> resultTask = () -> {
-
             try (Connection connection = dataSource.getConnection()) {
 
                 return function.apply(connection);
@@ -125,9 +128,9 @@ public class HikariConnection implements RelationalConnection {
         return connectionThreadPool.submit(resultTask);
     }
 
-
     @Override
     public Future<Void> asyncInteraction(Consumer<RelationalInteraction> interactionConsumer) {
+        lastActionTime = System.currentTimeMillis();
         Callable<Void> interactionTask = () -> {
             try (Connection connection = dataSource.getConnection()) {
 
@@ -145,11 +148,12 @@ public class HikariConnection implements RelationalConnection {
 
     @Override
     public void close() {
-         connectionThreadPool.shutdown();
+        connectionThreadPool.shutdown();
         try {
-            connectionThreadPool.awaitTermination(20, TimeUnit.SECONDS);
+            boolean terminated = connectionThreadPool.awaitTermination(20, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            logger.warning("Thread pool was interrupted before its natural termination, some of the transactions may not have been executed correctly");
+            logger.warning(
+                    "Thread pool was interrupted before its natural termination, some of the transactions may not have been executed correctly");
         }
 
         dataSource.close();

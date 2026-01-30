@@ -39,7 +39,7 @@ public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
     }
 
     @Override
-    public ICommandRegister getCommmandRegister() {
+    public ICommandRegister getCommandRegister() {
         return commandRegister;
     }
 }

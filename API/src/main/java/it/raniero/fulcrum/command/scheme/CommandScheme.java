@@ -66,5 +66,4 @@ public class CommandScheme {
     public boolean checkPermission(FulcrumSource source) {
         return permission == null || source.hasPermission(permission);
     }
-
 }

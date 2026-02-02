@@ -4,7 +4,6 @@ import it.raniero.fulcrum.database.properties.DatabaseProperties;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -26,7 +25,7 @@ public interface RelationalConnection {
 
     CompletableFuture<Void> runAsyncContext(Runnable task);
 
-    <T> CompletableFuture<T> runAsyncStatement(Supplier<T> supplier);
+    <T> CompletableFuture<T> async(Supplier<T> supplier);
 
     long getLastActionTime();
 

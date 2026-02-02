@@ -12,9 +12,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 public class HikariConnection implements RelationalConnection {
 
@@ -126,8 +124,6 @@ public class HikariConnection implements RelationalConnection {
             }
         };
 
-
-
         return CompletableFuture.supplyAsync(resultTask, connectionThreadPool);
     }
 
@@ -147,12 +143,10 @@ public class HikariConnection implements RelationalConnection {
         return CompletableFuture.runAsync(interactionTask, connectionThreadPool);
     }
 
-
     @Override
-    public <T> CompletableFuture<T> runAsyncStatement(Supplier<T> supplier) {
+    public <T> CompletableFuture<T> async(Supplier<T> supplier) {
         return CompletableFuture.supplyAsync(supplier, connectionThreadPool);
     }
-
 
     @Override
     public CompletableFuture<Void> runAsyncContext(Runnable task) {

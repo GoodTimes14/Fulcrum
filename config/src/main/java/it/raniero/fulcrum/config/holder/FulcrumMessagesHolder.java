@@ -21,6 +21,7 @@ public class FulcrumMessagesHolder implements SettingsHolder {
     public static final Property<String> NO_PERMISSION_SOURCE = new StringProperty(
             createPath("no", "permission", "command", "source"),
             "&cYou don't have enough permissions to execute this command!");
+
     @Comment(value = "This is the error displayed when a command is not compiled correctly")
     public static final Property<String> INVALID_COMMAND_ARGUMENTS =
             new StringProperty(createPath("invalid", "command", "arguments"), "&cInvalid arguments, here's the usage:");

@@ -14,9 +14,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public abstract class FulcrumCommandSpigot extends FulcrumCommand {
 
     @Getter

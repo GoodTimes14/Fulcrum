@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,9 +93,9 @@ public class HikariConnection implements RelationalConnection {
     }
 
     @Override
-    public Future<ResultSet> asyncQuery(Function<Connection, ResultSet> function) {
+    public CompletableFuture<ResultSet> asyncQuery(Function<Connection, ResultSet> function) {
         lastActionTime = System.currentTimeMillis();
-        Callable<ResultSet> resultTask = () -> {
+        Supplier<ResultSet> resultTask = () -> {
             try (Connection connection = dataSource.getConnection()) {
 
                 return function.apply(connection);
@@ -106,14 +107,14 @@ public class HikariConnection implements RelationalConnection {
             }
         };
 
-        return connectionThreadPool.submit(resultTask);
+        return CompletableFuture.supplyAsync(resultTask, connectionThreadPool);
     }
 
     @Override
-    public Future<Integer> asyncUpdate(Function<Connection, Integer> function) {
+    public CompletableFuture<Integer> asyncUpdate(Function<Connection, Integer> function) {
 
         lastActionTime = System.currentTimeMillis();
-        Callable<Integer> resultTask = () -> {
+        Supplier<Integer> resultTask = () -> {
             try (Connection connection = dataSource.getConnection()) {
 
                 return function.apply(connection);
@@ -125,13 +126,15 @@ public class HikariConnection implements RelationalConnection {
             }
         };
 
-        return connectionThreadPool.submit(resultTask);
+
+
+        return CompletableFuture.supplyAsync(resultTask, connectionThreadPool);
     }
 
     @Override
-    public Future<Void> asyncInteraction(Consumer<RelationalInteraction> interactionConsumer) {
+    public CompletableFuture<Void> asyncInteraction(Consumer<RelationalInteraction> interactionConsumer) {
         lastActionTime = System.currentTimeMillis();
-        Callable<Void> interactionTask = () -> {
+        Runnable interactionTask = () -> {
             try (Connection connection = dataSource.getConnection()) {
 
                 interactionConsumer.accept(new SQLInteraction(connection, logger));
@@ -139,11 +142,22 @@ public class HikariConnection implements RelationalConnection {
 
                 logger.log(Level.SEVERE, "Error while executing an async interaction", ex);
             }
-
-            return null;
         };
 
-        return connectionThreadPool.submit(interactionTask);
+        return CompletableFuture.runAsync(interactionTask, connectionThreadPool);
+    }
+
+
+    @Override
+    public <T> CompletableFuture<T> runAsyncStatement(Supplier<T> supplier) {
+        return CompletableFuture.supplyAsync(supplier, connectionThreadPool);
+    }
+
+
+    @Override
+    public CompletableFuture<Void> runAsyncContext(Runnable task) {
+        lastActionTime = System.currentTimeMillis();
+        return CompletableFuture.runAsync(task, connectionThreadPool);
     }
 
     @Override

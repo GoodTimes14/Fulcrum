@@ -14,7 +14,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
 
     private final FulcrumServer fulcrumServer = new FulcrumServerSpigot();
-    ;
 
     private SpigotCommandRegister commandRegister;
 

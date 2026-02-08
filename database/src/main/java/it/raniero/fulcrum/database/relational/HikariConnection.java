@@ -22,7 +22,7 @@ public class HikariConnection implements RelationalConnection {
     private ExecutorService connectionThreadPool;
 
     @Getter
-    private long lastActionTime;
+    private long lastActionTime = -1;
 
     @Override
     public void connect(DatabaseProperties properties, Logger logger) {
@@ -58,7 +58,7 @@ public class HikariConnection implements RelationalConnection {
         connectionThreadPool = Executors.newFixedThreadPool(1);
 
         logger.log(
-                Level.FINE, "[" + properties.getName() + "]" + "Connection to SQL Database established successfully");
+                Level.INFO, "[" + properties.getName() + "] " + "Connection to SQL Database established successfully!");
     }
 
     @Override

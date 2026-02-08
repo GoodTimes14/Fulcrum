@@ -94,10 +94,11 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             }
         }
 
-        if (context.result() == ContextResult.NO_PERMISSION || currentScheme.checkPermission(source)) {
+        if (context.result() == ContextResult.NO_PERMISSION || !currentScheme.checkPermission(source)) {
             context.setResult(ContextResult.NO_PERMISSION);
             source.sendMessage(fulcrum.getMainConfig()
                     .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.NO_PERMISSION_SOURCE));
+            return;
         }
 
         if (iterator.hasNext()) {
@@ -109,7 +110,11 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         }
 
         if (context.result() == ContextResult.OK) {
-            currentScheme.commandExecutor().accept(context);
+            if (currentScheme.commandExecutor() == null) {
+                sendCommandHelp(source, label, currentScheme);
+            } else {
+                currentScheme.commandExecutor().accept(context);
+            }
         }
     }
 
@@ -188,7 +193,17 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
 
     public abstract String plugin();
 
-    public abstract void sendCommandHelp(FulcrumSource source, String label, CommandScheme scheme);
+    public void sendCommandHelp(FulcrumSource source, String label, CommandScheme scheme) {
+        if (!scheme.arguments().isEmpty() || scheme.subCommands().isEmpty()) {
+            sendCommandUsage(source, label, scheme);
+        }
+
+        if (!scheme.subCommands().isEmpty()) {
+            for (CommandScheme subScheme : scheme.subCommands().values()) {
+                sendCommandHelp(source, label, subScheme);
+            }
+        }
+    }
 
     public abstract void sendCommandUsage(FulcrumSource source, String label, CommandScheme scheme);
 }

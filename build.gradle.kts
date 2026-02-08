@@ -35,6 +35,9 @@ subprojects {
 
         maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
 
+
+        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots")}
+
     }
 
 }

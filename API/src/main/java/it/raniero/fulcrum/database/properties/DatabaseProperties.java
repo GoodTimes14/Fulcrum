@@ -10,6 +10,7 @@ import lombok.*;
 public class DatabaseProperties {
 
     private String name;
+    private boolean enabled;
     private ConnectionType connectionType;
     private String host;
     private int port;

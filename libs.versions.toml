@@ -3,25 +3,17 @@ lombok = "8.6"
 shadow = "9.0.0-beta17"
 spotless = "7.0.4"
 spigot = "1.8.8-R0.1-SNAPSHOT"
-slimeworldapi = "2.2.1"
 configme = "1.4.1"
-packetevents = "2.9.4"
-papi = "2.11.6"
-fastboard = "2.1.3"
-apollo = "1.1.8"
 lettuce = "6.8.1.RELEASE"
 hikaricp = "6.2.1"
+bungeecord = "1.21-R0.4"
 
 [libraries]
 shadow = { "group" = "com.gradleup.shadow", name = "shadow-gradle-plugin", version.ref = "shadow"}
 lombok = { group = "io.freefair.gradle", name = "lombok-plugin", version.ref = "lombok" }
 spotless = {group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
 spigot = {group = "org.spigotmc",name = "spigot", version.ref = "spigot"}
-slimeworldapi = {group = "com.grinderwolf",name = "slimeworldmanager-api", version.ref = "slimeworldapi"}
 configme = {group = "ch.jalu", name = "configme", version.ref = "configme"}
-packetevents = {group = "com.github.retrooper",name = "packetevents-spigot",version.ref = "packetevents"}
-papi = {group = "me.clip",name = "placeholderapi", version.ref = "papi"}
-fastboard = {group = "fr.mrmicky",name = "fastboard",version.ref = "fastboard"}
-apollo = {group = "com.lunarclient", name = "apollo-api",version.ref = "apollo"}
 lettuce = {group = "io.lettuce", name ="lettuce-core", version.ref = "lettuce"}
 hikaricp = {group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp"}
+bungeecord = {group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord"}

@@ -4,7 +4,7 @@ import it.raniero.fulcrum.Fulcrum;
 import it.raniero.fulcrum.FulcrumPlugin;
 import it.raniero.fulcrum.command.manager.ICommandRegister;
 import it.raniero.fulcrum.server.FulcrumServer;
-import it.raniero.fulcrum.spigot.command.impl.MainCommand;
+import it.raniero.fulcrum.spigot.command.impl.MainSpigotCommand;
 import it.raniero.fulcrum.spigot.command.register.SpigotCommandRegister;
 import it.raniero.fulcrum.spigot.server.FulcrumServerSpigot;
 import lombok.Getter;
@@ -28,12 +28,11 @@ public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
     @Override
     public void onEnable() {
         fulcrum.start(this);
-        fulcrum.getCommandManager().registerCommand(new MainCommand(fulcrum));
+        fulcrum.getCommandManager().registerCommand(new MainSpigotCommand(fulcrum).getSpigotCommand());
     }
 
     @Override
     public void onDisable() {
-
         fulcrum.stop();
     }
 

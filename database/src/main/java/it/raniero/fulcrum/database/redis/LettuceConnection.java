@@ -70,6 +70,8 @@ public class LettuceConnection implements IRedisConnection {
             LettuceMessageListener lettuceMessageListener = new LettuceMessageListener(this, subscribeConnection);
             subscribeConnection.addListener(lettuceMessageListener);
         }
+
+        logger.log(Level.INFO, "[" + properties.getName() + "] " + "Connection to Redis established successfully!");
     }
 
     @Override

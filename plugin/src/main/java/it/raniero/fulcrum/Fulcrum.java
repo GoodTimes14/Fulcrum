@@ -46,7 +46,9 @@ public class Fulcrum implements FulcrumAPI {
         List<DatabaseProperties> databases =
                 mainConfig.get(FulcrumDatabaseHolder.class, FulcrumDatabaseHolder.DATABASES);
         for (DatabaseProperties databaseProperties : databases) {
-            database.registerConnection(databaseProperties);
+            if (databaseProperties.isEnabled()) {
+                database.registerConnection(databaseProperties);
+            }
         }
     }
 

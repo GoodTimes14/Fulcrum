@@ -21,11 +21,11 @@ public class CommandScheme {
 
     private final Consumer<ICommandContext> commandExecutor;
 
-    private final String label;
+    private String label;
 
     private final String description;
 
-    private final List<String> aliases;
+    private List<String> aliases;
 
     private final SourceType source;
 

@@ -1,23 +1,17 @@
-package it.raniero.fulcrum.spigot.command.impl;
+package it.raniero.fulcrum.command.common;
 
 import it.raniero.fulcrum.Fulcrum;
+import it.raniero.fulcrum.command.FulcrumCommand;
 import it.raniero.fulcrum.command.context.ICommandContext;
 import it.raniero.fulcrum.command.context.source.SourceType;
 import it.raniero.fulcrum.command.scheme.CommandScheme;
 import it.raniero.fulcrum.database.relational.RelationalConnection;
-import it.raniero.fulcrum.spigot.command.FulcrumCommandSpigot;
 import java.util.Map;
-import org.bukkit.ChatColor;
 
-public class MainCommand extends FulcrumCommandSpigot {
+public abstract class FulcrumMainCommand extends FulcrumCommand {
 
-    public MainCommand(Fulcrum fulcrum) {
+    public FulcrumMainCommand(Fulcrum fulcrum) {
         super(fulcrum);
-    }
-
-    @Override
-    public String plugin() {
-        return "fulcrum";
     }
 
     public void listConnections(ICommandContext context) {
@@ -27,19 +21,26 @@ public class MainCommand extends FulcrumCommandSpigot {
         Map<String, RelationalConnection> connections =
                 getFulcrum().getDatabase().getDatabaseConnections();
 
-        connectionsMessage.append(ChatColor.GRAY + "There are " + ChatColor.RED
-                + connections.size() + ChatColor.GRAY
-                + " connections available:\n");
+        connectionsMessage.append("§7There are §c" + connections.size() + "§7 connections available:\n");
         long timestamp = System.currentTimeMillis();
         for (Map.Entry<String, RelationalConnection> entry :
                 getFulcrum().getDatabase().getDatabaseConnections().entrySet()) {
             long delta = timestamp - entry.getValue().getLastActionTime();
+            String lastAction = entry.getValue().getLastActionTime() == -1 ? "Never used" : delta + "ms";
             connectionsMessage
-                    .append("&7" + entry.getKey() + " &8- &7Last Action &e" + delta + "ms")
+                    .append("&7")
+                    .append(entry.getKey())
+                    .append(" &8- &7Last Action &e")
+                    .append(lastAction)
                     .append("\n");
         }
 
         context.source().sendMessage(connectionsMessage.toString());
+    }
+
+    @Override
+    public String plugin() {
+        return "fulcrum";
     }
 
     @Override

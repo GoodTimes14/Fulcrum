@@ -1,33 +1,33 @@
-package it.raniero.fulcrum.spigot.command;
+package it.raniero.fulcrum.bungeecord.command;
 
 import it.raniero.fulcrum.Fulcrum;
+import it.raniero.fulcrum.bungeecord.command.executor.FulcrumBungeeExecutor;
 import it.raniero.fulcrum.command.FulcrumCommand;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.command.scheme.CommandScheme;
 import it.raniero.fulcrum.command.scheme.argument.Argument;
-import it.raniero.fulcrum.spigot.command.executor.FulcrumCommandExecutor;
 import lombok.Getter;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-public abstract class FulcrumCommandSpigot extends FulcrumCommand {
+@Getter
+public abstract class FulcrumCommandBungee extends FulcrumCommand {
 
-    @Getter
-    private FulcrumCommandExecutor executor;
+    private FulcrumBungeeExecutor executor;
 
-    public FulcrumCommandSpigot(Fulcrum fulcrum) {
+    public FulcrumCommandBungee(Fulcrum fulcrum) {
         super(fulcrum);
     }
 
     @Override
-    public void registerScheme(CommandScheme scheme) {
-        super.registerScheme(scheme);
-        this.executor =
-                new FulcrumCommandExecutor(this, getFulcrum().getPlugin().getFulcrumServer());
+    public void registerScheme(CommandScheme commandScheme) {
+        super.registerScheme(commandScheme);
+
+        executor = new FulcrumBungeeExecutor(this, getFulcrum().getPlugin().getFulcrumServer());
     }
 
     @Override
@@ -63,13 +63,12 @@ public abstract class FulcrumCommandSpigot extends FulcrumCommand {
         String description = scheme.description() == null ? "No description provided." : scheme.description();
         commandComponent.addExtra(ChatColor.DARK_GRAY + " - " + ChatColor.GRAY + description);
 
-        if (sender instanceof Player player) {
+        if (sender instanceof ProxiedPlayer player) {
 
-            player.spigot().sendMessage(commandComponent);
+            player.sendMessage(commandComponent);
 
         } else {
-
-            sender.sendMessage(commandComponent.toPlainText());
+            sender.sendMessage(new TextComponent(commandComponent.toPlainText()));
         }
     }
 }

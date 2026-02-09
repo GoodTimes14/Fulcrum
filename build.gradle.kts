@@ -4,7 +4,7 @@ plugins {
 
 group = "it.raniero"
 version = "1.0.0"
-description = "swiss knife for minecraft plugin development"
+description = "Swiss knife for minecraft plugin development"
 
 subprojects {
     tasks.withType<JavaCompile>().configureEach {

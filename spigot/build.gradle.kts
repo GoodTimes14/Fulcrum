@@ -24,9 +24,8 @@ dependencies {
 publishing.publications.create<MavenPublication>("maven") {
 
     artifactId = "fulcrum-" + project.name
-    version = rootProject.version.toString()
+    version = correctVersion(rootProject.version.toString() + (if (isSnapshot()) "-" + getGitBranch() else ""))
     group = rootProject.group.toString()
-
 
     artifact(tasks.named<ShadowJar>("shadowJar"))
 }

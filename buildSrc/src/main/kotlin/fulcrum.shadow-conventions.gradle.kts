@@ -10,6 +10,7 @@ tasks.named<ShadowJar>("shadowJar") {
 
     //minimize()
     archiveFileName.set("${rootProject.name}-${project.name}-${rootProject.version}.jar")
+    archiveClassifier.set("")
 
     relocate("com.zaxxer", "it.raniero.fulcrum.libs.com.zaxxer")
     relocate("com.mysql", "it.raniero.fulcrum.libs.com.mysql")
@@ -32,6 +33,4 @@ tasks.named<ShadowJar>("shadowJar") {
 
 tasks.named("assemble") {
     dependsOn(tasks.named("shadowJar"))
-
-
 }

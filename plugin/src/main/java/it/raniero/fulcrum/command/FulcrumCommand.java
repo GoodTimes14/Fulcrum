@@ -191,8 +191,6 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         return currentScheme;
     }
 
-    public abstract String plugin();
-
     public void sendCommandHelp(FulcrumSource source, String label, CommandScheme scheme) {
         if (!scheme.arguments().isEmpty() || scheme.subCommands().isEmpty()) {
             sendCommandUsage(source, label, scheme);

@@ -14,4 +14,6 @@ public interface FulcrumPlugin {
     File getDataFolder();
 
     Logger getLogger();
+
+    FulcrumAPI getFulcrum();
 }

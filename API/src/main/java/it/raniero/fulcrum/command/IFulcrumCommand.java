@@ -13,5 +13,7 @@ public interface IFulcrumCommand {
 
     List<String> executeTabCompletion(FulcrumServer server, FulcrumSource sender, String label, String[] args);
 
+    String plugin();
+
     CommandScheme scheme();
 }

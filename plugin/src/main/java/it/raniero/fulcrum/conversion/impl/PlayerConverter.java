@@ -18,7 +18,10 @@ public class PlayerConverter implements IConverter<FulcrumSource> {
     @Override
     public FulcrumSource convert(String name) {
 
-        return server.getOnlinePlayer(name);
+        FulcrumSource source = server.getOnlinePlayer(name);
+        if (source == null || source.getSourceObject() == null) return null;
+
+        return source;
     }
 
     @Override

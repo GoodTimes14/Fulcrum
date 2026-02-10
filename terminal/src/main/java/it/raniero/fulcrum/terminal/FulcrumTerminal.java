@@ -1,5 +1,6 @@
 package it.raniero.fulcrum.terminal;
 
+import it.raniero.fulcrum.FulcrumAPI;
 import it.raniero.fulcrum.FulcrumPlugin;
 import it.raniero.fulcrum.command.manager.ICommandRegister;
 import it.raniero.fulcrum.server.FulcrumServer;
@@ -19,4 +20,9 @@ public class FulcrumTerminal implements FulcrumPlugin {
     private final File dataFolder;
 
     private final Logger logger;
+
+    @Override
+    public FulcrumAPI getFulcrum() {
+        return null;
+    }
 }

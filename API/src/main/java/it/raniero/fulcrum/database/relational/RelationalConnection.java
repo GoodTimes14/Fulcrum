@@ -13,6 +13,8 @@ public interface RelationalConnection {
 
     void connect(DatabaseProperties properties, Logger logger);
 
+    DatabaseProperties properties();
+
     Connection getConnection();
 
     RelationalInteraction createInteraction(boolean autoCommit);

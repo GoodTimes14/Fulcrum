@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 
 public class HikariConnection implements RelationalConnection {
 
@@ -23,6 +24,10 @@ public class HikariConnection implements RelationalConnection {
 
     @Getter
     private long lastActionTime = -1;
+
+    @Getter
+    @Accessors(fluent = true)
+    private DatabaseProperties properties;
 
     @Override
     public void connect(DatabaseProperties properties, Logger logger) {

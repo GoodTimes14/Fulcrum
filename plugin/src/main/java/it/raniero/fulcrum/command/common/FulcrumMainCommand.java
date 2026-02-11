@@ -27,8 +27,10 @@ public abstract class FulcrumMainCommand extends FulcrumCommand {
                 getFulcrum().getDatabase().getDatabaseConnections().entrySet()) {
             long delta = timestamp - entry.getValue().getLastActionTime();
             String lastAction = entry.getValue().getLastActionTime() == -1 ? "Never used" : delta + "ms";
+
+            boolean enabled = entry.getValue().properties().isEnabled();
             connectionsMessage
-                    .append("&7")
+                    .append(enabled ? "&a" : "&c")
                     .append(entry.getKey())
                     .append(" &8- &7Last Action &e")
                     .append(lastAction)

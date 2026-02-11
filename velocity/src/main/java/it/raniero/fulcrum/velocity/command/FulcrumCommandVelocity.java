@@ -6,7 +6,7 @@ import it.raniero.fulcrum.command.FulcrumCommand;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.command.scheme.CommandScheme;
 import it.raniero.fulcrum.command.scheme.argument.Argument;
-import it.raniero.fulcrum.utils.MessageUtils;
+import it.raniero.fulcrum.velocity.utils.VelocityUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 
@@ -18,12 +18,13 @@ public abstract class FulcrumCommandVelocity extends FulcrumCommand {
 
     @Override
     public void sendCommandUsage(FulcrumSource source, String label, CommandScheme scheme) {
+
         CommandSource sender = (CommandSource) source.getSourceObject();
-        Component commandComponent = Component.text(MessageUtils.tranlateColors("&c" + "/" + label));
         if (!scheme.checkPermission(source)) {
             return;
         }
 
+        Component commandComponent = VelocityUtils.convertLegacyText("&c" + "/" + label);
         CommandScheme parent = scheme.parent();
         if (parent != null) {
             while (parent != null) {
@@ -41,13 +42,12 @@ public abstract class FulcrumCommandVelocity extends FulcrumCommand {
             Component argumentComponent = Component.text("<" + argument.name() + ">")
                     .hoverEvent(HoverEvent.hoverEvent(
                             HoverEvent.Action.SHOW_TEXT,
-                            Component.text(MessageUtils.tranlateColors("&c" + argument.description()))));
+                            VelocityUtils.convertLegacyText("<red>" + argument.description() + "</red>")));
             commandComponent = commandComponent.append(Component.text(" "), argumentComponent);
         }
 
         String description = scheme.description() == null ? "No description provided." : scheme.description();
-        commandComponent =
-                commandComponent.append(Component.text(MessageUtils.tranlateColors("&8 - &7" + description)));
+        commandComponent = commandComponent.append(VelocityUtils.convertLegacyText("&8 - &7" + description));
 
         sender.sendMessage(commandComponent);
     }

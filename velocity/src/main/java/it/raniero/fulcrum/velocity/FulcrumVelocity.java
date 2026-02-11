@@ -8,9 +8,9 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import it.raniero.fulcrum.Fulcrum;
-import it.raniero.fulcrum.FulcrumAPI;
 import it.raniero.fulcrum.FulcrumPlugin;
 import it.raniero.fulcrum.server.FulcrumServer;
+import it.raniero.fulcrum.velocity.command.impl.MainVelocityCommand;
 import it.raniero.fulcrum.velocity.command.register.VelocityCommandRegister;
 import it.raniero.fulcrum.velocity.server.FulcrumServerVelocity;
 import java.io.File;
@@ -31,7 +31,7 @@ public class FulcrumVelocity implements FulcrumPlugin {
 
     private final Path dataDirectory;
 
-    private final FulcrumAPI fulcrum;
+    private final Fulcrum fulcrum;
 
     private final FulcrumServer fulcrumServer;
 
@@ -59,6 +59,7 @@ public class FulcrumVelocity implements FulcrumPlugin {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         fulcrum.start(this);
+        commandRegister.registerCommand(new MainVelocityCommand(fulcrum));
     }
 
     @Subscribe

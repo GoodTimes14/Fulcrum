@@ -4,8 +4,10 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import it.raniero.fulcrum.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.command.context.source.SourceType;
+import it.raniero.fulcrum.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @RequiredArgsConstructor
 public class FulcrumVelocitySource implements FulcrumSource {
@@ -19,7 +21,9 @@ public class FulcrumVelocitySource implements FulcrumSource {
 
     @Override
     public void sendMessage(String text) {
-        source.sendMessage(Component.text(text));
+        String converted = MessageUtils.tranlateColors(text);
+        Component component = LegacyComponentSerializer.legacySection().deserialize(converted);
+        source.sendMessage(component);
     }
 
     @Override

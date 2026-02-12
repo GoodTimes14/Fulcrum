@@ -1,5 +1,6 @@
 package it.raniero.fulcrum.database.redis.cache;
 
+import it.raniero.fulcrum.api.database.redis.cache.IRedisCache;
 import it.raniero.fulcrum.database.redis.LettuceConnection;
 import java.util.List;
 import java.util.Map;

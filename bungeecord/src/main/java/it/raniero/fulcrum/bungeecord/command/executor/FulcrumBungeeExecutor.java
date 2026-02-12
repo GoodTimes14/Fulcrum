@@ -1,8 +1,8 @@
 package it.raniero.fulcrum.bungeecord.command.executor;
 
+import it.raniero.fulcrum.api.server.FulcrumServer;
 import it.raniero.fulcrum.bungeecord.server.source.FulcrumBungeeCordSource;
 import it.raniero.fulcrum.command.FulcrumCommand;
-import it.raniero.fulcrum.server.FulcrumServer;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;

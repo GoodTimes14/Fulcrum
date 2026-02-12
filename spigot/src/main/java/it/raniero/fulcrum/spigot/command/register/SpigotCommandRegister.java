@@ -1,7 +1,7 @@
 package it.raniero.fulcrum.spigot.command.register;
 
-import it.raniero.fulcrum.command.IFulcrumCommand;
-import it.raniero.fulcrum.command.manager.ICommandRegister;
+import it.raniero.fulcrum.api.command.IFulcrumCommand;
+import it.raniero.fulcrum.api.command.manager.ICommandRegister;
 import it.raniero.fulcrum.spigot.FulcrumSpigot;
 import it.raniero.fulcrum.spigot.command.FulcrumCommandSpigot;
 import java.lang.reflect.Field;

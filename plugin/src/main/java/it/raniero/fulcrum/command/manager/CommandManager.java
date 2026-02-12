@@ -1,7 +1,8 @@
 package it.raniero.fulcrum.command.manager;
 
 import it.raniero.fulcrum.Fulcrum;
-import it.raniero.fulcrum.command.IFulcrumCommand;
+import it.raniero.fulcrum.api.command.IFulcrumCommand;
+import it.raniero.fulcrum.api.command.manager.ICommandManager;
 import it.raniero.fulcrum.command.exception.FulcrumCommandException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

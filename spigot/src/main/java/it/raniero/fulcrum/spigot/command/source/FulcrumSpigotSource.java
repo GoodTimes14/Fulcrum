@@ -1,8 +1,8 @@
 package it.raniero.fulcrum.spigot.command.source;
 
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.command.context.source.SourceType;
-import it.raniero.fulcrum.utils.MessageUtils;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.context.source.SourceType;
+import it.raniero.fulcrum.api.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

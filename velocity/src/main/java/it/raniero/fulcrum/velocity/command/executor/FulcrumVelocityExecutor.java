@@ -2,8 +2,8 @@ package it.raniero.fulcrum.velocity.command.executor;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
-import it.raniero.fulcrum.command.IFulcrumCommand;
-import it.raniero.fulcrum.server.FulcrumServer;
+import it.raniero.fulcrum.api.command.IFulcrumCommand;
+import it.raniero.fulcrum.api.server.FulcrumServer;
 import it.raniero.fulcrum.velocity.server.sender.FulcrumVelocitySource;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

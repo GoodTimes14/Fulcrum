@@ -2,7 +2,9 @@ package it.raniero.fulcrum.database.relational;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import it.raniero.fulcrum.database.properties.DatabaseProperties;
+import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
+import it.raniero.fulcrum.api.database.relational.RelationalConnection;
+import it.raniero.fulcrum.api.database.relational.RelationalInteraction;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -2,10 +2,10 @@ package it.raniero.fulcrum.velocity.command;
 
 import com.velocitypowered.api.command.CommandSource;
 import it.raniero.fulcrum.Fulcrum;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
+import it.raniero.fulcrum.api.command.scheme.argument.Argument;
 import it.raniero.fulcrum.command.FulcrumCommand;
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.command.scheme.CommandScheme;
-import it.raniero.fulcrum.command.scheme.argument.Argument;
 import it.raniero.fulcrum.velocity.utils.VelocityUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;

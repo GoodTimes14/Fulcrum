@@ -1,6 +1,7 @@
 package it.raniero.fulcrum.database.redis.cache;
 
 import io.lettuce.core.RedisFuture;
+import it.raniero.fulcrum.api.database.redis.cache.IAsyncRedisCache;
 import it.raniero.fulcrum.database.redis.LettuceConnection;
 import java.util.List;
 import java.util.Map;

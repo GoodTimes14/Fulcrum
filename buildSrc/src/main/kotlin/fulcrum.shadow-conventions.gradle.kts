@@ -14,6 +14,10 @@ tasks.named<ShadowJar>("shadowJar") {
 
     relocate("com.zaxxer", "it.raniero.fulcrum.libs.com.zaxxer")
     relocate("com.mysql", "it.raniero.fulcrum.libs.com.mysql")
+    relocate("com.google.protobuf", "it.raniero.fulcrum.libs.com.google.protobuf")
+    relocate("google.protobuf", "it.raniero.fulcrum.libs.google.protobuf")
+    relocate("redis", "it.raniero.fulcrum.libs.redis")
+
 
     relocate("org.mariadb", "it.raniero.fulcrum.libs.org.mariadb")
     relocate("io.lettuce", "it.raniero.fulcrum.libs.io.lettuce")

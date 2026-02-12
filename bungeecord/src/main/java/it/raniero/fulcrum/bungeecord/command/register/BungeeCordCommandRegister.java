@@ -1,9 +1,9 @@
 package it.raniero.fulcrum.bungeecord.command.register;
 
+import it.raniero.fulcrum.api.command.IFulcrumCommand;
+import it.raniero.fulcrum.api.command.manager.ICommandRegister;
 import it.raniero.fulcrum.bungeecord.FulcrumBungee;
 import it.raniero.fulcrum.bungeecord.command.FulcrumCommandBungee;
-import it.raniero.fulcrum.command.IFulcrumCommand;
-import it.raniero.fulcrum.command.manager.ICommandRegister;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;

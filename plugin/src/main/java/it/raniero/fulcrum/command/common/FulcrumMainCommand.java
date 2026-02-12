@@ -1,11 +1,11 @@
 package it.raniero.fulcrum.command.common;
 
 import it.raniero.fulcrum.Fulcrum;
+import it.raniero.fulcrum.api.command.context.ICommandContext;
+import it.raniero.fulcrum.api.command.context.source.SourceType;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
+import it.raniero.fulcrum.api.database.relational.RelationalConnection;
 import it.raniero.fulcrum.command.FulcrumCommand;
-import it.raniero.fulcrum.command.context.ICommandContext;
-import it.raniero.fulcrum.command.context.source.SourceType;
-import it.raniero.fulcrum.command.scheme.CommandScheme;
-import it.raniero.fulcrum.database.relational.RelationalConnection;
 import java.util.Map;
 
 public abstract class FulcrumMainCommand extends FulcrumCommand {

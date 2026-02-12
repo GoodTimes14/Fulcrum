@@ -4,8 +4,8 @@ import ch.jalu.configme.SettingsHolder;
 import ch.jalu.configme.properties.ListProperty;
 import ch.jalu.configme.properties.Property;
 import ch.jalu.configme.properties.types.BeanPropertyType;
-import it.raniero.fulcrum.database.properties.ConnectionType;
-import it.raniero.fulcrum.database.properties.DatabaseProperties;
+import it.raniero.fulcrum.api.database.properties.ConnectionType;
+import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
 import java.util.ArrayList;
 import java.util.List;
 

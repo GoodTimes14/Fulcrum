@@ -1,9 +1,9 @@
 package it.raniero.fulcrum.velocity.command.impl;
 
 import it.raniero.fulcrum.Fulcrum;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
 import it.raniero.fulcrum.command.common.FulcrumMainCommand;
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.command.scheme.CommandScheme;
 import it.raniero.fulcrum.velocity.command.FulcrumCommandVelocity;
 
 public class MainVelocityCommand extends FulcrumMainCommand {

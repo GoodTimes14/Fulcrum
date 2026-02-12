@@ -1,7 +1,8 @@
 package it.raniero.fulcrum.command.context;
 
-import it.raniero.fulcrum.command.context.result.ContextResult;
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.context.ICommandContext;
+import it.raniero.fulcrum.api.command.context.result.ContextResult;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package it.raniero.fulcrum.bungeecord.server.source;
 
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.command.context.source.SourceType;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.context.source.SourceType;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;

@@ -1,12 +1,12 @@
 package it.raniero.fulcrum.bungeecord;
 
 import it.raniero.fulcrum.Fulcrum;
-import it.raniero.fulcrum.FulcrumPlugin;
+import it.raniero.fulcrum.api.FulcrumPlugin;
+import it.raniero.fulcrum.api.command.manager.ICommandRegister;
+import it.raniero.fulcrum.api.server.FulcrumServer;
 import it.raniero.fulcrum.bungeecord.command.impl.MainBungeeCommand;
 import it.raniero.fulcrum.bungeecord.command.register.BungeeCordCommandRegister;
 import it.raniero.fulcrum.bungeecord.server.FulcrumBungeeCordServer;
-import it.raniero.fulcrum.command.manager.ICommandRegister;
-import it.raniero.fulcrum.server.FulcrumServer;
 import lombok.Getter;
 import net.md_5.bungee.api.plugin.Plugin;
 

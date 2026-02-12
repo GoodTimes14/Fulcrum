@@ -1,8 +1,8 @@
 package it.raniero.fulcrum.conversion.impl;
 
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.conversion.IConverter;
-import it.raniero.fulcrum.server.FulcrumServer;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.conversion.IConverter;
+import it.raniero.fulcrum.api.server.FulcrumServer;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

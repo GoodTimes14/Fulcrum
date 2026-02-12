@@ -1,7 +1,7 @@
 package it.raniero.fulcrum.terminal.server.sender;
 
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.command.context.source.SourceType;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.context.source.SourceType;
 import java.io.PrintStream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,18 +1,19 @@
 package it.raniero.fulcrum.command;
 
 import it.raniero.fulcrum.Fulcrum;
+import it.raniero.fulcrum.api.command.IFulcrumCommand;
+import it.raniero.fulcrum.api.command.context.result.ContextResult;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.context.source.SourceType;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
+import it.raniero.fulcrum.api.command.scheme.argument.Argument;
+import it.raniero.fulcrum.api.command.scheme.argument.impl.GroupedArgument;
+import it.raniero.fulcrum.api.command.scheme.argument.impl.NormalArgument;
+import it.raniero.fulcrum.api.server.FulcrumServer;
+import it.raniero.fulcrum.api.utils.CommandUtils;
 import it.raniero.fulcrum.command.context.CommandContext;
-import it.raniero.fulcrum.command.context.result.ContextResult;
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.command.context.source.SourceType;
 import it.raniero.fulcrum.command.exception.FulcrumCommandException;
-import it.raniero.fulcrum.command.scheme.CommandScheme;
-import it.raniero.fulcrum.command.scheme.argument.Argument;
-import it.raniero.fulcrum.command.scheme.argument.impl.GroupedArgument;
-import it.raniero.fulcrum.command.scheme.argument.impl.NormalArgument;
 import it.raniero.fulcrum.config.holder.FulcrumMessagesHolder;
-import it.raniero.fulcrum.server.FulcrumServer;
-import it.raniero.fulcrum.utils.CommandUtils;
 import java.util.*;
 import lombok.Getter;
 

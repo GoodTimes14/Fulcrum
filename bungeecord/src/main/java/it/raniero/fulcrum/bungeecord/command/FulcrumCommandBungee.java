@@ -1,11 +1,11 @@
 package it.raniero.fulcrum.bungeecord.command;
 
 import it.raniero.fulcrum.Fulcrum;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
+import it.raniero.fulcrum.api.command.scheme.argument.Argument;
 import it.raniero.fulcrum.bungeecord.command.executor.FulcrumBungeeExecutor;
 import it.raniero.fulcrum.command.FulcrumCommand;
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.command.scheme.CommandScheme;
-import it.raniero.fulcrum.command.scheme.argument.Argument;
 import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;

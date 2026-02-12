@@ -2,9 +2,9 @@ package it.raniero.fulcrum.velocity.server.sender;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.command.context.source.SourceType;
-import it.raniero.fulcrum.utils.MessageUtils;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.context.source.SourceType;
+import it.raniero.fulcrum.api.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;

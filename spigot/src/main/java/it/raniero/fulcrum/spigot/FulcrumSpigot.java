@@ -1,9 +1,9 @@
 package it.raniero.fulcrum.spigot;
 
 import it.raniero.fulcrum.Fulcrum;
-import it.raniero.fulcrum.FulcrumPlugin;
-import it.raniero.fulcrum.command.manager.ICommandRegister;
-import it.raniero.fulcrum.server.FulcrumServer;
+import it.raniero.fulcrum.api.FulcrumPlugin;
+import it.raniero.fulcrum.api.command.manager.ICommandRegister;
+import it.raniero.fulcrum.api.server.FulcrumServer;
 import it.raniero.fulcrum.spigot.command.impl.MainSpigotCommand;
 import it.raniero.fulcrum.spigot.command.register.SpigotCommandRegister;
 import it.raniero.fulcrum.spigot.server.FulcrumServerSpigot;

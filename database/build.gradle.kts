@@ -23,6 +23,7 @@ publishing.publications.create<MavenPublication>("maven") {
     version = correctVersion(rootProject.version.toString() + (if (isSnapshot()) "-" + getGitBranch() else ""))
     group = rootProject.group.toString()
 
+    artifact(tasks.named("sourcesJar"))
     artifact(tasks.named<ShadowJar>("shadowJar"))
 }
 

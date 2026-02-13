@@ -29,6 +29,8 @@ publishing.publications.create<MavenPublication>("maven") {
     group = rootProject.group.toString()
 
 
+
+    artifact(tasks.named("sourcesJar"))
     artifact(tasks.named<ShadowJar>("shadowJar"))
 }
 

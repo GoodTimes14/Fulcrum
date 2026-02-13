@@ -34,6 +34,8 @@ public class HikariConnection implements RelationalConnection {
     @Override
     public void connect(DatabaseProperties properties, Logger logger) {
         this.logger = logger;
+        this.properties = properties;
+
         HikariConfig config = new HikariConfig();
 
         config.setJdbcUrl(

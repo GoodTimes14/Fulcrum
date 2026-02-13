@@ -16,7 +16,9 @@ public class FulcrumCommandExecutor extends BukkitCommand {
     public FulcrumCommandExecutor(FulcrumCommand fulcrumCommand, FulcrumServer fulcrumServer) {
         super(
                 fulcrumCommand.getCommandScheme().label(),
-                fulcrumCommand.getCommandScheme().description(),
+                fulcrumCommand.getCommandScheme().description() == null
+                        ? ""
+                        : fulcrumCommand.getCommandScheme().description(),
                 "",
                 fulcrumCommand.getCommandScheme().aliases() == null
                         ? new ArrayList<>()

@@ -25,9 +25,9 @@ public interface RelationalConnection {
 
     CompletableFuture<Void> asyncInteraction(Consumer<RelationalInteraction> consumer);
 
-    CompletableFuture<Void> runAsyncContext(Runnable task);
-
     <T> CompletableFuture<T> async(Supplier<T> supplier);
+
+    CompletableFuture<Void> async(Runnable action);
 
     long getLastActionTime();
 

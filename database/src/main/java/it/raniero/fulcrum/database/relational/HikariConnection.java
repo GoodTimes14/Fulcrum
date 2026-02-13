@@ -158,9 +158,8 @@ public class HikariConnection implements RelationalConnection {
     }
 
     @Override
-    public CompletableFuture<Void> runAsyncContext(Runnable task) {
-        lastActionTime = System.currentTimeMillis();
-        return CompletableFuture.runAsync(task, connectionThreadPool);
+    public CompletableFuture<Void> async(Runnable action) {
+        return CompletableFuture.runAsync(action, connectionThreadPool);
     }
 
     @Override

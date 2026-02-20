@@ -7,6 +7,8 @@ import it.raniero.fulcrum.api.conversion.IConversionManager;
 import it.raniero.fulcrum.api.server.FulcrumServer;
 import lombok.Builder;
 
+import java.util.Arrays;
+
 @Builder
 public record GroupedArgument(String name, Class<?> type, boolean required, String description, Object... values)
         implements Argument {
@@ -22,6 +24,11 @@ public record GroupedArgument(String name, Class<?> type, boolean required, Stri
         } else {
             context.addArgument(result);
         }
+    }
+
+    @Override
+    public String display() {
+        return "[" + String.join(",", Arrays.stream(values).map(Object::toString).toList()) +  "]";
     }
 
     private boolean isValueIncluded(Object input) {

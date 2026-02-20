@@ -14,4 +14,7 @@ public interface Argument {
 
     void compileArgument(
             int index, IConversionManager conversionManager, FulcrumServer server, ICommandContext context);
+
+    String display();
+
 }

@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     compileOnly(libs.spigot)
+    compileOnly(libs.configme)
     implementation(project(":API"))
     implementation(project(":plugin"))
     implementation(project(":database"))

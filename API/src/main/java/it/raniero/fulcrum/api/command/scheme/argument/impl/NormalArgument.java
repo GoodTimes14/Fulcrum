@@ -33,4 +33,9 @@ public record NormalArgument(
             }
         }
     }
+
+    @Override
+    public String display() {
+        return "<" + name + ">";
+    }
 }

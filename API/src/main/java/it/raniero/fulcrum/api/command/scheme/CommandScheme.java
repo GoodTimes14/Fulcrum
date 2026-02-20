@@ -35,6 +35,14 @@ public class CommandScheme {
 
     private final String permission;
 
+    private final String labelColor;
+
+    private final String argumentColor;
+
+    private final String argumentHoverColor;
+
+    private final String descriptionColor;
+
     private CommandScheme parent;
 
     public static class CommandSchemeBuilder {

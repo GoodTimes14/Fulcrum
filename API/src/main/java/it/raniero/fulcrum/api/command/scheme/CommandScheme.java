@@ -27,7 +27,7 @@ public class CommandScheme {
 
     private List<String> aliases;
 
-    private final SourceType source;
+    private SourceType source;
 
     private final Map<String, CommandScheme> subCommands;
 

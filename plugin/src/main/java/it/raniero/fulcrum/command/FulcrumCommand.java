@@ -125,10 +125,9 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             throw new FulcrumCommandException(this, "CommandScheme is not registered");
         }
 
-        if (commandScheme.source() != SourceType.ALL && source.sourceType() != commandScheme.source()) {
-            // ERROR
-            source.sendMessage(fulcrum.getMainConfig()
-                    .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_SOURCE));
+        if ((commandScheme.source() == null || commandScheme.source() != SourceType.ALL) &&
+                source.sourceType() != commandScheme.source()) {
+            return new ArrayList<>();
         }
 
         LinkedList<String> linkedArgs = new LinkedList<>(Arrays.asList(args));

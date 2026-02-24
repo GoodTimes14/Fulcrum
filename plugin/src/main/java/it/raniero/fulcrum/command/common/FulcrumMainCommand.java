@@ -41,6 +41,11 @@ public abstract class FulcrumMainCommand extends FulcrumCommand {
         context.source().sendMessage(connectionsMessage.toString());
     }
 
+    public void reload(ICommandContext context) {
+        getFulcrum().getMainConfig().reload();
+        context.source().sendMessage("&aConfig reloaded!");
+    }
+
     public void testCommand(ICommandContext context) {}
 
     @Override
@@ -52,6 +57,7 @@ public abstract class FulcrumMainCommand extends FulcrumCommand {
     public CommandScheme scheme() {
         return CommandScheme.builder()
                 .label("fulcrum")
+                .permission("fulcrum.admin")
                 .source(SourceType.ALL)
                 .description("Main Fulcrum command")
                 .subCommands(
@@ -59,6 +65,10 @@ public abstract class FulcrumMainCommand extends FulcrumCommand {
                                 .label("connections")
                                 .commandExecutor(this::listConnections)
                                 .description("List fulcrum active connections")
+                                .build(),
+                        CommandScheme.builder()
+                                .label("reload")
+                                .commandExecutor(this::reload)
                                 .build(),
                         CommandScheme.builder()
                                 .label("test")

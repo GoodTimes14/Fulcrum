@@ -114,14 +114,14 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         if (iterator.hasNext()) {
             Map.Entry<String, Argument> entry = iterator.next();
             if (entry.getValue().required()) {
-                sendCommandHelp(source, label, currentScheme);
                 context.setResult(ContextResult.INVALID_ARGUMENTS);
+                sendCommandHelp(source, label, currentScheme, context.result(), true);
             }
         }
 
         if (context.result() == ContextResult.OK) {
             if (currentScheme.commandExecutor() == null) {
-                sendCommandHelp(source, label, currentScheme);
+                sendCommandHelp(source, label, currentScheme, context.result(), true);
             } else {
                 currentScheme.commandExecutor().accept(context);
             }
@@ -223,14 +223,55 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         return schemes;
     }
 
-    public void sendCommandHelp(FulcrumSource source, String label, CommandScheme scheme) {
+    private CommandScheme getSchemeParent(CommandScheme scheme) {
+        CommandScheme out = scheme;
+        while (out.parent() != null) {
+            out = out.parent();
+        }
+
+        return out;
+    }
+
+    public void sendCommandHelp(
+            FulcrumSource source, String label, CommandScheme scheme, ContextResult result, boolean send) {
+        String preamble = fulcrum.getMainConfig()
+                .get(
+                        FulcrumMessagesHolder.class,
+                        result == ContextResult.INVALID_ARGUMENTS
+                                ? FulcrumMessagesHolder.INVALID_COMMAND_ARGUMENTS
+                                : FulcrumMessagesHolder.COMMAND_HELP_PREAMBLE);
+
+        CommandScheme parent = getSchemeParent(scheme);
+
+        if (send) {
+            String labelColor = parent.labelColor() == null
+                    ? fulcrum.getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_LABEL_COLOR)
+                    : parent.labelColor();
+
+            String argumentColor = parent.argumentColor() == null
+                    ? fulcrum.getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_ARGUMENT_COLOR)
+                    : parent.argumentColor();
+
+            String descriptionColor = parent.descriptionColor() == null
+                    ? fulcrum.getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_DESCRIPTION_COLOR)
+                    : parent.descriptionColor();
+
+            source.sendMessage(preamble.replace("%label_color%", labelColor)
+                    .replace("%argument_color%", argumentColor)
+                    .replace("%description_color%", descriptionColor)
+                    .replace("%label%", label));
+        }
+
         if (!scheme.arguments().isEmpty() || scheme.subCommands().isEmpty()) {
             sendCommandUsage(source, label, scheme);
         }
 
         if (!scheme.subCommands().isEmpty()) {
             for (CommandScheme subScheme : scheme.subCommands().values()) {
-                sendCommandHelp(source, label, subScheme);
+                sendCommandHelp(source, label, subScheme, result, false);
             }
         }
     }

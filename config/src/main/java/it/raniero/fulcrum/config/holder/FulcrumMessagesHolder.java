@@ -42,7 +42,12 @@ public class FulcrumMessagesHolder implements SettingsHolder {
     public static final Property<String> DEFAULT_ARGUMENT_HOVER_COLOR =
             new StringProperty(createPath("default", "argument", "hover", "color"), "&c");
 
-    @Comment(value = "The default color for the argument hover if not specified in the scheme")
+    @Comment(value = "The default color for the description if not specified in the scheme")
     public static final Property<String> DEFAULT_DESCRIPTION_COLOR =
             new StringProperty(createPath("default", "description", "color"), "&c");
+
+    @Comment(value = "The message that should be showed every time a command usage is shown")
+    public static final Property<String> COMMAND_HELP_PREAMBLE = new StringProperty(
+            createPath("command", "help", "preamble"),
+            "%argument_color%Showing help for command: %label_color%%label%");
 }

@@ -21,7 +21,7 @@ public class FulcrumVelocitySource implements FulcrumSource {
 
     @Override
     public void sendMessage(String text) {
-        String converted = MessageUtils.tranlateColors(text);
+        String converted = MessageUtils.translateColors(text);
         Component component = LegacyComponentSerializer.legacySection().deserialize(converted);
         source.sendMessage(component);
     }

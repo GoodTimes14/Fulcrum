@@ -19,7 +19,7 @@ public class FulcrumSpigotSource implements FulcrumSource {
 
     @Override
     public void sendMessage(String text) {
-        sender.sendMessage(MessageUtils.tranlateColors(text));
+        sender.sendMessage(MessageUtils.translateColors(text));
     }
 
     @Override

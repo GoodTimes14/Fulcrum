@@ -8,9 +8,10 @@ plugins {
 }
 
 dependencies {
-    compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
-    annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
+    compileOnly(libs.velocity)
+    annotationProcessor(libs.velocity)
 
+    implementation(libs.configme)
     implementation(project(":API"))
     implementation(project(":plugin"))
     implementation(project(":database"))

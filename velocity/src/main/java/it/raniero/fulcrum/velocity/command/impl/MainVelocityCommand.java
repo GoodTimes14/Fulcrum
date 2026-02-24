@@ -14,6 +14,7 @@ public class MainVelocityCommand extends FulcrumMainCommand {
         super(fulcrum);
 
         FulcrumMainCommand command = this;
+        command.scheme().label("fulcrumvelo");
         this.commandVelocity = new FulcrumCommandVelocity(fulcrum) {
             @Override
             public String plugin() {

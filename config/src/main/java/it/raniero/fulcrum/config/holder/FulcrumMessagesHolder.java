@@ -45,5 +45,4 @@ public class FulcrumMessagesHolder implements SettingsHolder {
     @Comment(value = "The default color for the argument hover if not specified in the scheme")
     public static final Property<String> DEFAULT_DESCRIPTION_COLOR =
             new StringProperty(createPath("default", "description", "color"), "&c");
-
 }

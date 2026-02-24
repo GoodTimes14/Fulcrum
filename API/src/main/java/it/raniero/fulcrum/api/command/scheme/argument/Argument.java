@@ -16,5 +16,4 @@ public interface Argument {
             int index, IConversionManager conversionManager, FulcrumServer server, ICommandContext context);
 
     String display();
-
 }

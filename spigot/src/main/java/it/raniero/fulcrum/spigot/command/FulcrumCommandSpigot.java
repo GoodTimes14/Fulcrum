@@ -8,6 +8,8 @@ import it.raniero.fulcrum.api.utils.MessageUtils;
 import it.raniero.fulcrum.command.FulcrumCommand;
 import it.raniero.fulcrum.config.holder.FulcrumMessagesHolder;
 import it.raniero.fulcrum.spigot.command.executor.FulcrumCommandExecutor;
+import it.raniero.fulcrum.spigot.utils.SpigotUtils;
+import java.util.List;
 import lombok.Getter;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -33,65 +35,90 @@ public abstract class FulcrumCommandSpigot extends FulcrumCommand {
     }
 
     @Override
-    public void sendCommandUsage(FulcrumSource source, String label,  CommandScheme scheme) {
+    public void sendCommandUsage(FulcrumSource source, String label, CommandScheme scheme) {
         CommandSender sender = (CommandSender) source.getSourceObject();
-        String labelColor = scheme.labelColor() == null ?
-                getFulcrum().getMainConfig().get(FulcrumMessagesHolder.class,FulcrumMessagesHolder.DEFAULT_LABEL_COLOR) :
-                scheme.labelColor();
-
-        TextComponent commandComponent = new TextComponent(labelColor + "/" + label);
         if (!scheme.checkPermission(source)) {
             return;
         }
 
-        CommandScheme parent = scheme.parent();
-        if (parent != null) {
-            while (parent != null) {
-                if (parent.parent() == null) break; // Reached root command
+        List<CommandScheme> schemes = getSchemeParents(scheme);
+        CommandScheme parent = !schemes.isEmpty() ? schemes.get(0) : scheme;
+        String labelColor = parent.labelColor() == null
+                ? getFulcrum()
+                        .getMainConfig()
+                        .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_LABEL_COLOR)
+                : parent.labelColor();
 
-                commandComponent.addExtra(" " + parent.label());
-                parent = parent.parent();
-            }
-
-            commandComponent.addExtra(" " + scheme.label());
-        } else {
-            parent = scheme;
-        }
-
-        for (Argument argument : scheme.arguments().values()) {
-
-            String argumentColor = parent.argumentColor() == null ?
-                    getFulcrum().getMainConfig().get(FulcrumMessagesHolder.class,FulcrumMessagesHolder.DEFAULT_ARGUMENT_COLOR) :
-                    parent.argumentColor();
-
-            String hoverColor = parent.argumentHoverColor() == null ?
-                    getFulcrum().getMainConfig().get(FulcrumMessagesHolder.class,FulcrumMessagesHolder.DEFAULT_ARGUMENT_HOVER_COLOR) :
-                    parent.argumentHoverColor();
-
-
-            TextComponent component = new TextComponent(argumentColor + argument.display());
-            ComponentBuilder builder = new ComponentBuilder(hoverColor + argument.description());
-
-            component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, builder.create()));
-            commandComponent.addExtra(" ");
-            commandComponent.addExtra(component);
-        }
-
-        String descriptionColor = parent.descriptionColor() == null ?
-                getFulcrum().getMainConfig().get(FulcrumMessagesHolder.class,FulcrumMessagesHolder.DEFAULT_DESCRIPTION_COLOR) :
-                parent.descriptionColor();
-
-
-        String description = scheme.description() == null ? "No description provided." : scheme.description();
-        commandComponent.addExtra(ChatColor.DARK_GRAY + " - " + descriptionColor + description);
+        TextComponent commandComponent = new TextComponent(labelColor + "/" + label);
+        schemes.remove(0);
+        addSubCommandComponents(commandComponent, schemes);
+        addArgumentComponents(commandComponent, scheme, parent);
+        addDescriptionComponent(commandComponent, scheme, parent);
 
         if (sender instanceof Player player) {
 
-            player.spigot().sendMessage(commandComponent);
+            player.spigot().sendMessage(SpigotUtils.translateComponent(commandComponent));
 
         } else {
 
-            sender.sendMessage(commandComponent.toPlainText());
+            sender.sendMessage(MessageUtils.translateColors(commandComponent.toPlainText()));
+        }
+    }
+
+    private void addSubCommandComponents(TextComponent component, List<CommandScheme> schemes) {
+        for (CommandScheme subScheme : schemes) {
+
+            String subCommandColor = subScheme.labelColor() == null
+                    ? getFulcrum()
+                            .getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_SUBLABEL_COLOR)
+                    : subScheme.labelColor();
+
+            TextComponent subComponent = new TextComponent(subCommandColor + " " + subScheme.label());
+
+            String description = subScheme.description() == null ? "N/D" : subScheme.description();
+            ComponentBuilder builder = new ComponentBuilder(subCommandColor + description);
+            subComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, builder.create()));
+
+            component.addExtra(subComponent);
+        }
+    }
+
+    private void addDescriptionComponent(TextComponent component, CommandScheme scheme, CommandScheme parent) {
+        String descriptionColor = parent.descriptionColor() == null
+                ? getFulcrum()
+                        .getMainConfig()
+                        .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_DESCRIPTION_COLOR)
+                : parent.descriptionColor();
+
+        String description = scheme.description() == null ? "N/D" : scheme.description();
+        component.addExtra(ChatColor.DARK_GRAY + " - " + descriptionColor + description);
+    }
+
+    private void addArgumentComponents(TextComponent component, CommandScheme scheme, CommandScheme parent) {
+        String argumentColor = parent.argumentColor() == null
+                ? getFulcrum()
+                        .getMainConfig()
+                        .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_ARGUMENT_COLOR)
+                : parent.argumentColor();
+
+        component.addExtra(argumentColor);
+        for (Argument argument : scheme.arguments().values()) {
+
+            String hoverColor = parent.argumentHoverColor() == null
+                    ? getFulcrum()
+                            .getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_ARGUMENT_HOVER_COLOR)
+                    : parent.argumentHoverColor();
+
+            TextComponent argumentComponent = new TextComponent(argument.display());
+            String description = argument.description() == null ? "N/D" : argument.description();
+
+            ComponentBuilder builder = new ComponentBuilder(hoverColor + description);
+
+            argumentComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, builder.create()));
+            component.addExtra(" ");
+            component.addExtra(argumentComponent);
         }
     }
 }

@@ -62,6 +62,15 @@ public class CommandScheme {
             subCommands.put(scheme.label(), scheme);
             return this;
         }
+
+        public CommandSchemeBuilder subCommands(CommandScheme... schemes) {
+
+            for (CommandScheme scheme : schemes) {
+                subCommands.put(scheme.label(), scheme);
+            }
+
+            return this;
+        }
     }
 
     public void parentizeSubCommands() {

@@ -5,9 +5,8 @@ import it.raniero.fulcrum.api.command.context.result.ContextResult;
 import it.raniero.fulcrum.api.command.scheme.argument.Argument;
 import it.raniero.fulcrum.api.conversion.IConversionManager;
 import it.raniero.fulcrum.api.server.FulcrumServer;
-import lombok.Builder;
-
 import java.util.Arrays;
+import lombok.Builder;
 
 @Builder
 public record GroupedArgument(String name, Class<?> type, boolean required, String description, Object... values)
@@ -28,7 +27,8 @@ public record GroupedArgument(String name, Class<?> type, boolean required, Stri
 
     @Override
     public String display() {
-        return "[" + String.join(",", Arrays.stream(values).map(Object::toString).toList()) +  "]";
+        return "["
+                + String.join(",", Arrays.stream(values).map(Object::toString).toList()) + "]";
     }
 
     private boolean isValueIncluded(Object input) {

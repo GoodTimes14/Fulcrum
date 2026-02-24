@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
     compileOnly(libs.bungeecord)
+    compileOnly(libs.configme)
     implementation(project(":API"))
     implementation(project(":plugin"))
     implementation(project(":database"))

@@ -125,13 +125,15 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             throw new FulcrumCommandException(this, "CommandScheme is not registered");
         }
 
-        if ((commandScheme.source() == null || commandScheme.source() != SourceType.ALL) &&
-                source.sourceType() != commandScheme.source()) {
+        if ((commandScheme.source() == null || commandScheme.source() != SourceType.ALL)
+                && source.sourceType() != commandScheme.source()) {
             return new ArrayList<>();
         }
 
         LinkedList<String> linkedArgs = new LinkedList<>(Arrays.asList(args));
-        CommandScheme currentScheme = getCurrentScheme(linkedArgs);
+        String lastArg = linkedArgs.peekLast();
+
+        CommandScheme currentScheme = getCurrentScheme(linkedArgs, lastArg == null || !lastArg.isEmpty());
         List<Argument> commandArguments =
                 new ArrayList<>(currentScheme.arguments().values());
 
@@ -173,8 +175,11 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         return new ArrayList<>(output);
     }
 
-    private CommandScheme getCurrentScheme(LinkedList<String> args) {
+    private CommandScheme getCurrentScheme(LinkedList<String> args, boolean poll) {
         CommandScheme currentScheme = commandScheme;
+        if (poll) {
+            args.pollLast();
+        }
 
         while (!args.isEmpty()) {
             String parameter = args.peekFirst();
@@ -189,6 +194,25 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         }
 
         return currentScheme;
+    }
+
+    public List<CommandScheme> getSchemeParents(CommandScheme scheme) {
+        List<CommandScheme> schemes = new ArrayList<>();
+        CommandScheme parent = scheme.parent();
+        if (parent != null) {
+            schemes.add(parent);
+            while (parent != null) {
+
+                if (parent.parent() == null) break; // Root Command
+                parent = parent.parent();
+
+                schemes.add(0, parent);
+            }
+
+            schemes.add(scheme);
+        }
+
+        return schemes;
     }
 
     public void sendCommandHelp(FulcrumSource source, String label, CommandScheme scheme) {

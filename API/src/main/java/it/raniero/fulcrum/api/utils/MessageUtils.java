@@ -11,7 +11,7 @@ public final class MessageUtils {
      * @param textToTranslate
      * @return the text with the color code translated
      */
-    public static String tranlateColors(String textToTranslate) {
+    public static String translateColors(String textToTranslate) {
         char[] b = textToTranslate.toCharArray();
 
         for (int i = 0; i < b.length - 1; ++i) {

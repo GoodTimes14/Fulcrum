@@ -47,10 +47,13 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             throw new FulcrumCommandException(this, "CommandScheme is not registered");
         }
 
-        if (commandScheme.source() != SourceType.ALL && source.sourceType() != commandScheme.source()) {
+        if (commandScheme.source() != null
+                && commandScheme.source() != SourceType.ALL
+                && source.sourceType() != commandScheme.source()) {
             // ERROR
             source.sendMessage(fulcrum.getMainConfig()
                     .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_SOURCE));
+            return;
         }
 
         CommandContext context = new CommandContext(source, new LinkedList<>(), args);
@@ -143,7 +146,6 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         List<Argument> commandArguments =
                 new ArrayList<>(currentScheme.arguments().values());
 
-        String lastInput = linkedArgs.isEmpty() ? "" : linkedArgs.getLast();
         Argument lastArgument = commandArguments.isEmpty() ? null : commandArguments.get(commandArguments.size() - 1);
         Set<String> output = new HashSet<>();
 
@@ -158,20 +160,20 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
                         .map(Object::toString)
                         .toList());
 
-                CommandUtils.filterStringsByInput(lastInput, strings);
+                CommandUtils.filterStringsByInput(lastArg, strings);
                 output.addAll(strings);
 
             } else if (lastArgument instanceof NormalArgument normalArgument) {
 
                 if (normalArgument.type() == server.getPlayerClass() || normalArgument.suggestPlayersInTab()) {
-                    output.addAll(server.getOnlinePlayerNames(lastInput));
+                    output.addAll(server.getOnlinePlayerNames(lastArg));
                 }
             }
         }
 
         if (linkedArgs.size() <= 1) {
             output.addAll(CommandUtils.filterStringsByInput(
-                    lastInput,
+                    lastArg,
                     new ArrayList<>(currentScheme.subCommands().keySet().stream()
                             .filter(name ->
                                     currentScheme.subCommands().get(name).checkPermission(source))

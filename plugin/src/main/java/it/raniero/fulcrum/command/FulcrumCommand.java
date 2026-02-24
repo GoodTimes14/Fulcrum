@@ -55,42 +55,48 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
 
         CommandContext context = new CommandContext(source, new LinkedList<>(), args);
         CommandScheme currentScheme = commandScheme;
+        if (!currentScheme.checkPermission(source)) {
+            context.setResult(ContextResult.NO_PERMISSION);
+        }
+
         LinkedHashMap<String, Argument> arguments = commandScheme.arguments();
         Iterator<Map.Entry<String, Argument>> iterator = arguments.entrySet().iterator();
 
         boolean searchingScheme = true;
 
-        for (int i = 0; i < args.length; i++) {
+        if (context.result() == ContextResult.OK) {
+            for (int i = 0; i < args.length; i++) {
 
-            String parameter = args[i];
-            if (searchingScheme && currentScheme.subCommands().containsKey(parameter)) {
-                currentScheme = currentScheme.subCommands().get(parameter);
-                if (!currentScheme.checkPermission(source)) {
-                    context.setResult(ContextResult.NO_PERMISSION);
-                    break;
+                String parameter = args[i];
+                if (searchingScheme && currentScheme.subCommands().containsKey(parameter)) {
+                    currentScheme = currentScheme.subCommands().get(parameter);
+                    if (!currentScheme.checkPermission(source)) {
+                        context.setResult(ContextResult.NO_PERMISSION);
+                        break;
+                    }
+
+                    arguments = currentScheme.arguments();
+                    iterator = arguments.entrySet().iterator();
+
+                    continue;
+
+                } else {
+                    searchingScheme = false;
                 }
 
-                arguments = currentScheme.arguments();
-                iterator = arguments.entrySet().iterator();
+                if (iterator.hasNext()) {
 
-                continue;
+                    Map.Entry<String, Argument> entry = iterator.next();
+                    entry.getValue().compileArgument(i, fulcrum.getConversionManager(), server, context);
 
-            } else {
-                searchingScheme = false;
-            }
+                    if (context.result() == ContextResult.INVALID_ARGUMENTS) {
 
-            if (iterator.hasNext()) {
+                        source.sendMessage(fulcrum.getMainConfig()
+                                .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_ARGUMENTS));
 
-                Map.Entry<String, Argument> entry = iterator.next();
-                entry.getValue().compileArgument(i, fulcrum.getConversionManager(), server, context);
-
-                if (context.result() == ContextResult.INVALID_ARGUMENTS) {
-
-                    source.sendMessage(fulcrum.getMainConfig()
-                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_ARGUMENTS));
-
-                    sendCommandUsage(source, label, currentScheme);
-                    break;
+                        sendCommandUsage(source, label, currentScheme);
+                        break;
+                    }
                 }
             }
         }

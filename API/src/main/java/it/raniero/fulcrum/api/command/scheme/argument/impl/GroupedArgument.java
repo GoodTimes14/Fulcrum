@@ -19,7 +19,7 @@ public record GroupedArgument(String name, Class<?> type, boolean required, Stri
 
         Object result = conversionManager.convertArgument(type, parameter);
         if (result == null || !isValueIncluded(result)) {
-            context.setResult(ContextResult.INVALID_ARGUMENTS);
+            context.result(ContextResult.INVALID_ARGUMENTS);
         } else {
             context.addArgument(result);
         }

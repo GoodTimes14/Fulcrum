@@ -29,7 +29,7 @@ public record NormalArgument(
 
             boolean result = conversionManager.convertAndAddArgument(type, parameter, context);
             if (!result) {
-                context.setResult(ContextResult.INVALID_ARGUMENTS);
+                context.result(ContextResult.INVALID_ARGUMENTS);
             }
         }
     }

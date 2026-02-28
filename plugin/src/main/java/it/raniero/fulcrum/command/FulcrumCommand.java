@@ -56,67 +56,36 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             return;
         }
 
-        CommandContext context = new CommandContext(source, new LinkedList<>(), args);
-        CommandScheme currentScheme = commandScheme;
+        // Searches for the current Command scheme first
+        LinkedList<String> linkedArgs = new LinkedList<>(Arrays.asList(args));
+        int preSearchSize = linkedArgs.size();
+
+        CommandContext context = new CommandContext(source, new LinkedList<>(), args, label, server);
+        CommandScheme currentScheme = getCurrentScheme(context, linkedArgs, false);
         if (!currentScheme.checkPermission(source)) {
-            context.setResult(ContextResult.NO_PERMISSION);
+            context.result(ContextResult.NO_PERMISSION);
         }
 
-        LinkedHashMap<String, Argument> arguments = commandScheme.arguments();
-        Iterator<Map.Entry<String, Argument>> iterator = arguments.entrySet().iterator();
-
-        boolean searchingScheme = true;
-
+        // then, if everything is right, it tries to compile the arguments
         if (context.result() == ContextResult.OK) {
-            for (int i = 0; i < args.length; i++) {
-
-                String parameter = args[i];
-                if (searchingScheme && currentScheme.subCommands().containsKey(parameter)) {
-                    currentScheme = currentScheme.subCommands().get(parameter);
-                    if (!currentScheme.checkPermission(source)) {
-                        context.setResult(ContextResult.NO_PERMISSION);
-                        break;
-                    }
-
-                    arguments = currentScheme.arguments();
-                    iterator = arguments.entrySet().iterator();
-
-                    continue;
-
-                } else {
-                    searchingScheme = false;
-                }
-
-                if (iterator.hasNext()) {
-
-                    Map.Entry<String, Argument> entry = iterator.next();
-                    entry.getValue().compileArgument(i, fulcrum.getConversionManager(), server, context);
-
-                    if (context.result() == ContextResult.INVALID_ARGUMENTS) {
-
-                        source.sendMessage(fulcrum.getMainConfig()
-                                .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_ARGUMENTS));
-
-                        sendCommandUsage(source, label, currentScheme);
-                        break;
-                    }
-                }
-            }
+            int argumentStartIndex = preSearchSize - linkedArgs.size();
+            compileArguments(context, currentScheme, linkedArgs, argumentStartIndex);
         }
 
-        if (context.result() == ContextResult.NO_PERMISSION || !currentScheme.checkPermission(source)) {
-            context.setResult(ContextResult.NO_PERMISSION);
+        if (context.result() == ContextResult.INVALID_ARGUMENTS) {
+
+            context.source()
+                    .sendMessage(fulcrum.getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.INVALID_COMMAND_ARGUMENTS));
+
+            sendCommandUsage(context.source(), context.label(), currentScheme);
+        }
+
+        if (context.result() == ContextResult.NO_PERMISSION) {
+
             source.sendMessage(fulcrum.getMainConfig()
                     .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.NO_PERMISSION_SOURCE));
             return;
-        }
-
-        if (iterator.hasNext()) {
-            Map.Entry<String, Argument> entry = iterator.next();
-            if (entry.getValue().required()) {
-                context.setResult(ContextResult.INVALID_ARGUMENTS);
-                sendCommandHelp(source, label, currentScheme, context.result(), true);
-            }
         }
 
         if (context.result() == ContextResult.OK) {
@@ -134,15 +103,23 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             throw new FulcrumCommandException(this, "CommandScheme is not registered");
         }
 
-        if ((commandScheme.source() == null || commandScheme.source() != SourceType.ALL)
+        if (commandScheme.source() != null
+                && commandScheme.source() != SourceType.ALL
                 && source.sourceType() != commandScheme.source()) {
             return new ArrayList<>();
         }
-
         LinkedList<String> linkedArgs = new LinkedList<>(Arrays.asList(args));
+        int currentArgsSize = linkedArgs.size();
         String lastArg = linkedArgs.peekLast();
 
-        CommandScheme currentScheme = getCurrentScheme(linkedArgs, lastArg == null || !lastArg.isEmpty());
+        CommandContext context = new CommandContext(source, new LinkedList<>(), args, label, server);
+        CommandScheme currentScheme = getCurrentScheme(context, linkedArgs, lastArg == null || !lastArg.isEmpty());
+        if (context.result() == ContextResult.NO_PERMISSION) {
+            return new ArrayList<>();
+        }
+
+        int argumentStartIndex = currentArgsSize - linkedArgs.size();
+        compileArguments(context, currentScheme, linkedArgs, argumentStartIndex);
         List<Argument> commandArguments =
                 new ArrayList<>(currentScheme.arguments().values());
 
@@ -171,6 +148,13 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             }
         }
 
+        if (currentScheme.tabExecutor() != null) {
+            List<String> completions = currentScheme.tabExecutor().apply(context);
+            if (completions != null) {
+                output.addAll(completions);
+            }
+        }
+
         if (linkedArgs.size() <= 1) {
             output.addAll(CommandUtils.filterStringsByInput(
                     lastArg,
@@ -183,8 +167,34 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         return new ArrayList<>(output);
     }
 
-    private CommandScheme getCurrentScheme(LinkedList<String> args, boolean poll) {
+    private void compileArguments(
+            CommandContext context, CommandScheme currentScheme, LinkedList<String> args, int index) {
+
+        Iterator<Map.Entry<String, Argument>> iterator =
+                currentScheme.arguments().entrySet().iterator();
+
+        for (int i = 0; i < args.size(); i++) {
+            if (iterator.hasNext()) {
+                Map.Entry<String, Argument> entry = iterator.next();
+                entry.getValue().compileArgument(i + index, fulcrum.getConversionManager(), context.server(), context);
+            }
+        }
+
+        if (iterator.hasNext()) {
+            Map.Entry<String, Argument> entry = iterator.next();
+            if (entry.getValue().required()) {
+                context.result(ContextResult.INVALID_ARGUMENTS);
+            }
+        }
+    }
+
+    private CommandScheme getCurrentScheme(CommandContext context, LinkedList<String> args, boolean poll) {
         CommandScheme currentScheme = commandScheme;
+        if (!currentScheme.checkPermission(context.source())) {
+            context.result(ContextResult.NO_PERMISSION);
+            return currentScheme;
+        }
+
         if (poll) {
             args.pollLast();
         }
@@ -194,6 +204,11 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
             if (currentScheme.subCommands().containsKey(parameter)) {
 
                 currentScheme = currentScheme.subCommands().get(parameter);
+                if (!currentScheme.checkPermission(context.source())) {
+                    context.result(ContextResult.NO_PERMISSION);
+                    break;
+                }
+
                 args.pollFirst();
 
             } else {

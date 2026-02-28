@@ -3,13 +3,18 @@ package it.raniero.fulcrum.command.context;
 import it.raniero.fulcrum.api.command.context.ICommandContext;
 import it.raniero.fulcrum.api.command.context.result.ContextResult;
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.server.FulcrumServer;
 import java.util.List;
 import java.util.Optional;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @RequiredArgsConstructor
 @Setter
+@Getter
+@Accessors(fluent = true)
 public class CommandContext implements ICommandContext {
 
     private final FulcrumSource source;
@@ -17,6 +22,10 @@ public class CommandContext implements ICommandContext {
     private final List<Object> arguments;
 
     private final String[] originalParameters;
+
+    private final String label;
+
+    private final FulcrumServer server;
 
     private ContextResult result = ContextResult.OK;
 
@@ -60,6 +69,11 @@ public class CommandContext implements ICommandContext {
         if (object == null) return;
 
         arguments.add(object);
+    }
+
+    @Override
+    public void result(ContextResult result) {
+        this.result = result;
     }
 
     @Override

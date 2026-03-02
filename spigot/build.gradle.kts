@@ -14,6 +14,7 @@ repositories {
 dependencies {
     compileOnly(libs.spigot)
     compileOnly(libs.configme)
+    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
     implementation(project(":API"))
     implementation(project(":plugin"))
     implementation(project(":database"))

@@ -27,6 +27,11 @@ public class FulcrumVelocitySource implements FulcrumSource {
     }
 
     @Override
+    public void sendMessage(Component component) {
+        source.sendMessage(component);
+    }
+
+    @Override
     public SourceType sourceType() {
         return source instanceof Player ? SourceType.PLAYER : SourceType.CONSOLE;
     }

@@ -28,6 +28,9 @@ tasks.named<ShadowJar>("shadowJar") {
     relocate("reactor", "it.raniero.fulcrum.libs.reactor")
     relocate("ch.jalu", "it.raniero.fulcrum.libs.ch.jalu")
     relocate("org.yaml", "it.raniero.fulcrum.libs.org.yaml")
+    if(!project.name.contains("velocity")) {
+        relocate("net.kyori", "it.raniero.fulcrum.libs.net.kyori")
+    }
 
     relocate("reactor", "it.raniero.fulcrum.libs.reactor")
 

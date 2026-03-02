@@ -21,6 +21,8 @@ dependencies {
     implementation(project(":database"))
     implementation(project(":config"))
 
+    implementation("net.kyori:adventure-platform-bungeecord:4.4.1")
+
 }
 
 publishing.publications.create<MavenPublication>("maven") {

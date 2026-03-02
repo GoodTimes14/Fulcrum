@@ -8,6 +8,7 @@ import it.raniero.fulcrum.spigot.command.impl.MainSpigotCommand;
 import it.raniero.fulcrum.spigot.command.register.SpigotCommandRegister;
 import it.raniero.fulcrum.spigot.server.FulcrumServerSpigot;
 import lombok.Getter;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
@@ -19,6 +20,8 @@ public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
 
     private Fulcrum fulcrum;
 
+    private BukkitAudiences adventure;
+
     @Override
     public void onLoad() {
         fulcrum = new Fulcrum();
@@ -27,6 +30,7 @@ public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
 
     @Override
     public void onEnable() {
+        adventure = BukkitAudiences.create(this);
         fulcrum.start(this);
         fulcrum.getCommandManager().registerCommand(new MainSpigotCommand(fulcrum).getSpigotCommand());
     }
@@ -34,6 +38,10 @@ public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
     @Override
     public void onDisable() {
         fulcrum.stop();
+        if (this.adventure != null) {
+            this.adventure.close();
+            this.adventure = null;
+        }
     }
 
     @Override

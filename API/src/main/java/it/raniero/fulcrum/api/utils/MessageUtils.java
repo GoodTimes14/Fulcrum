@@ -1,5 +1,8 @@
 package it.raniero.fulcrum.api.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 public final class MessageUtils {
 
     private MessageUtils() {
@@ -22,5 +25,9 @@ public final class MessageUtils {
         }
 
         return new String(b);
+    }
+
+    public static Component convertLegacyText(String input) {
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(input);
     }
 }

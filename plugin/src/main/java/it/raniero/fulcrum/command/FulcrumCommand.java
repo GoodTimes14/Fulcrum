@@ -11,11 +11,14 @@ import it.raniero.fulcrum.api.command.scheme.argument.impl.GroupedArgument;
 import it.raniero.fulcrum.api.command.scheme.argument.impl.NormalArgument;
 import it.raniero.fulcrum.api.server.FulcrumServer;
 import it.raniero.fulcrum.api.utils.CommandUtils;
+import it.raniero.fulcrum.api.utils.MessageUtils;
 import it.raniero.fulcrum.command.context.CommandContext;
 import it.raniero.fulcrum.command.exception.FulcrumCommandException;
 import it.raniero.fulcrum.config.holder.FulcrumMessagesHolder;
 import java.util.*;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
 
 public abstract class FulcrumCommand implements IFulcrumCommand {
 
@@ -248,7 +251,7 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
     }
 
     public void sendCommandHelp(
-            FulcrumSource source, String label, CommandScheme scheme, ContextResult result, boolean send) {
+            FulcrumSource source, String label, CommandScheme scheme, ContextResult result, boolean sendPreamble) {
         String preamble = fulcrum.getMainConfig()
                 .get(
                         FulcrumMessagesHolder.class,
@@ -258,7 +261,7 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
 
         CommandScheme parent = getSchemeParent(scheme);
 
-        if (send) {
+        if (sendPreamble) {
             String labelColor = parent.labelColor() == null
                     ? fulcrum.getMainConfig()
                             .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_LABEL_COLOR)
@@ -291,5 +294,86 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         }
     }
 
-    public abstract void sendCommandUsage(FulcrumSource source, String label, CommandScheme scheme);
+    @Override
+    public void sendCommandUsage(FulcrumSource source, String label, CommandScheme scheme) {
+        if (!scheme.checkPermission(source)) {
+            return;
+        }
+
+        List<CommandScheme> schemes = getSchemeParents(scheme);
+        CommandScheme parent = !schemes.isEmpty() ? schemes.get(0) : scheme;
+        String labelColor = parent.labelColor() == null
+                ? getFulcrum()
+                        .getMainConfig()
+                        .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_LABEL_COLOR)
+                : parent.labelColor();
+
+        Component commandComponent = MessageUtils.convertLegacyText(labelColor + "/" + label);
+        schemes.remove(0);
+        commandComponent = addSubCommandComponents(commandComponent, schemes);
+        commandComponent = addArgumentComponents(commandComponent, scheme, parent);
+        commandComponent = addDescriptionComponent(commandComponent, scheme, parent);
+
+        source.sendMessage(commandComponent);
+    }
+
+    private Component addSubCommandComponents(Component component, List<CommandScheme> schemes) {
+        for (CommandScheme subScheme : schemes) {
+
+            String subCommandColor = subScheme.labelColor() == null
+                    ? getFulcrum()
+                            .getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_SUBLABEL_COLOR)
+                    : subScheme.labelColor();
+
+            String description = subScheme.description() == null ? "N/D" : subScheme.description();
+
+            Component subComponent = MessageUtils.convertLegacyText(subCommandColor + " " + subScheme.label())
+                    .hoverEvent(HoverEvent.hoverEvent(
+                            HoverEvent.Action.SHOW_TEXT,
+                            MessageUtils.convertLegacyText(subCommandColor + description)));
+
+            component = component.append(subComponent);
+        }
+
+        return component;
+    }
+
+    private Component addArgumentComponents(Component component, CommandScheme scheme, CommandScheme parent) {
+        String argumentColor = parent.argumentColor() == null
+                ? getFulcrum()
+                        .getMainConfig()
+                        .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_ARGUMENT_COLOR)
+                : parent.argumentColor();
+        for (Argument argument : scheme.arguments().values()) {
+
+            String hoverColor = parent.argumentHoverColor() == null
+                    ? getFulcrum()
+                            .getMainConfig()
+                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_ARGUMENT_HOVER_COLOR)
+                    : parent.argumentHoverColor();
+
+            String description = argument.description() == null ? "N/D" : argument.description();
+
+            Component argumentComponent = MessageUtils.convertLegacyText(argumentColor + " " + argument.display())
+                    .hoverEvent(HoverEvent.hoverEvent(
+                            HoverEvent.Action.SHOW_TEXT, MessageUtils.convertLegacyText(hoverColor + description)));
+
+            component = component.append(argumentComponent);
+        }
+
+        return component;
+    }
+
+    private Component addDescriptionComponent(Component component, CommandScheme scheme, CommandScheme parent) {
+        String descriptionColor = parent.descriptionColor() == null
+                ? getFulcrum()
+                        .getMainConfig()
+                        .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_DESCRIPTION_COLOR)
+                : parent.descriptionColor();
+
+        String description = scheme.description() == null ? "N/D" : scheme.description();
+
+        return component.append(MessageUtils.convertLegacyText("&8 - " + descriptionColor + description));
+    }
 }

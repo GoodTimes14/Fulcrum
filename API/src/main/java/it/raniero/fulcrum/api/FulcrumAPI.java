@@ -10,6 +10,8 @@ public interface FulcrumAPI {
 
     IFulcrumDatabase getDatabase();
 
+    FulcrumPlugin getPlugin();
+
     void createDatabase(DatabaseProperties databaseProperties);
 
     void createRedis(RedisProperties redisProperties);

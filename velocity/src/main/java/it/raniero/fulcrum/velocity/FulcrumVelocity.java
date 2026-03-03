@@ -10,7 +10,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import it.raniero.fulcrum.Fulcrum;
 import it.raniero.fulcrum.api.FulcrumPlugin;
 import it.raniero.fulcrum.api.server.FulcrumServer;
-import it.raniero.fulcrum.velocity.command.impl.MainVelocityCommand;
+import it.raniero.fulcrum.command.common.FulcrumMainCommand;
 import it.raniero.fulcrum.velocity.command.register.VelocityCommandRegister;
 import it.raniero.fulcrum.velocity.server.FulcrumServerVelocity;
 import java.io.File;
@@ -59,7 +59,7 @@ public class FulcrumVelocity implements FulcrumPlugin {
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         fulcrum.start(this);
-        commandRegister.registerCommand(new MainVelocityCommand(fulcrum));
+        fulcrum.getCommandManager().wrapCommand(new FulcrumMainCommand(fulcrum));
     }
 
     @Subscribe

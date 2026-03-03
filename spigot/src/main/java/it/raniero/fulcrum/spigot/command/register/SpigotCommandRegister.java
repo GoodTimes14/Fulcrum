@@ -2,6 +2,7 @@ package it.raniero.fulcrum.spigot.command.register;
 
 import it.raniero.fulcrum.api.command.IFulcrumCommand;
 import it.raniero.fulcrum.api.command.manager.ICommandRegister;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
 import it.raniero.fulcrum.spigot.FulcrumSpigot;
 import it.raniero.fulcrum.spigot.command.FulcrumCommandSpigot;
 import java.lang.reflect.Field;
@@ -41,6 +42,23 @@ public class SpigotCommandRegister implements ICommandRegister {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void wrapCommand(IFulcrumCommand command) {
+        FulcrumCommandSpigot commandSpigot = new FulcrumCommandSpigot(fulcrumSpigot.getFulcrum()) {
+            @Override
+            public String plugin() {
+                return command.plugin();
+            }
+
+            @Override
+            public CommandScheme scheme() {
+                return command.scheme();
+            }
+        };
+
+        registerCommand(commandSpigot);
     }
 
     @Override

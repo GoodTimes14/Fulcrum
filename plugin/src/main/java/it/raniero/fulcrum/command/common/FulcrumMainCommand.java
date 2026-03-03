@@ -9,7 +9,7 @@ import it.raniero.fulcrum.api.database.relational.RelationalConnection;
 import it.raniero.fulcrum.command.FulcrumCommand;
 import java.util.Map;
 
-public abstract class FulcrumMainCommand extends FulcrumCommand {
+public class FulcrumMainCommand extends FulcrumCommand {
 
     public FulcrumMainCommand(Fulcrum fulcrum) {
         super(fulcrum);

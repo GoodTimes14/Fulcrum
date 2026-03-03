@@ -53,7 +53,7 @@ public class FulcrumVelocity implements FulcrumPlugin {
 
         this.fulcrum = new Fulcrum();
         this.fulcrumServer = new FulcrumServerVelocity(server);
-        this.commandRegister = new VelocityCommandRegister(fulcrumServer, server, logger);
+        this.commandRegister = new VelocityCommandRegister(fulcrum, fulcrumServer, server, logger);
     }
 
     @Subscribe

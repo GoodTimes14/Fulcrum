@@ -4,7 +4,7 @@ import it.raniero.fulcrum.Fulcrum;
 import it.raniero.fulcrum.api.FulcrumPlugin;
 import it.raniero.fulcrum.api.command.manager.ICommandRegister;
 import it.raniero.fulcrum.api.server.FulcrumServer;
-import it.raniero.fulcrum.spigot.command.impl.MainSpigotCommand;
+import it.raniero.fulcrum.command.common.FulcrumMainCommand;
 import it.raniero.fulcrum.spigot.command.register.SpigotCommandRegister;
 import it.raniero.fulcrum.spigot.server.FulcrumServerSpigot;
 import lombok.Getter;
@@ -32,7 +32,8 @@ public class FulcrumSpigot extends JavaPlugin implements FulcrumPlugin {
     public void onEnable() {
         adventure = BukkitAudiences.create(this);
         fulcrum.start(this);
-        fulcrum.getCommandManager().registerCommand(new MainSpigotCommand(fulcrum).getSpigotCommand());
+
+        fulcrum.getCommandManager().wrapCommand(new FulcrumMainCommand(fulcrum));
     }
 
     @Override

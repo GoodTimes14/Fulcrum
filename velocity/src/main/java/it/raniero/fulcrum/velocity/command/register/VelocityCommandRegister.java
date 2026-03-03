@@ -4,9 +4,12 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.proxy.ProxyServer;
+import it.raniero.fulcrum.Fulcrum;
 import it.raniero.fulcrum.api.command.IFulcrumCommand;
 import it.raniero.fulcrum.api.command.manager.ICommandRegister;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
 import it.raniero.fulcrum.api.server.FulcrumServer;
+import it.raniero.fulcrum.velocity.command.FulcrumCommandVelocity;
 import it.raniero.fulcrum.velocity.command.executor.FulcrumVelocityExecutor;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class VelocityCommandRegister implements ICommandRegister {
+
+    private final Fulcrum fulcrum;
 
     private final FulcrumServer fulcrumServer;
 
@@ -48,6 +53,23 @@ public class VelocityCommandRegister implements ICommandRegister {
 
         server.getCommandManager().register(meta, new FulcrumVelocityExecutor(fulcrumServer, command));
         velocityCommands.put(command.scheme().label(), command);
+    }
+
+    @Override
+    public void wrapCommand(IFulcrumCommand command) {
+        FulcrumCommandVelocity commandVelocity = new FulcrumCommandVelocity(fulcrum) {
+            @Override
+            public String plugin() {
+                return command.plugin();
+            }
+
+            @Override
+            public CommandScheme scheme() {
+                return command.scheme();
+            }
+        };
+
+        registerCommand(commandVelocity);
     }
 
     @Override

@@ -3,6 +3,7 @@ package it.raniero.fulcrum.command.manager;
 import it.raniero.fulcrum.Fulcrum;
 import it.raniero.fulcrum.api.command.IFulcrumCommand;
 import it.raniero.fulcrum.api.command.manager.ICommandManager;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
 import it.raniero.fulcrum.command.exception.FulcrumCommandException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +25,25 @@ public class CommandManager implements ICommandManager {
 
         registeredCommands.put(command.scheme().label(), command);
         fulcrum.getPlugin().getCommandRegister().registerCommand(command);
+    }
+
+    @Override
+    public void wrapCommand(IFulcrumCommand command, CommandScheme... additionalSubCommands) {
+        if (registeredCommands.containsKey(command.scheme().label())) {
+            throw new FulcrumCommandException(
+                    command, "Command \"" + command.scheme().label() + "\" is already registered!");
+        }
+
+        CommandScheme scheme = command.scheme();
+
+        for (CommandScheme subCommand : additionalSubCommands) {
+            scheme.subCommands().put(subCommand.label(), subCommand);
+        }
+
+        command.registerScheme(scheme);
+
+        registeredCommands.put(command.scheme().label(), command);
+        fulcrum.getPlugin().getCommandRegister().wrapCommand(command);
     }
 
     @Override

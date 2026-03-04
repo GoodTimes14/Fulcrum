@@ -1,6 +1,7 @@
 package it.raniero.fulcrum.database.relational;
 
-import it.raniero.fulcrum.database.query.utils.StatementUtils;
+import it.raniero.fulcrum.api.database.query.utils.StatementUtils;
+import it.raniero.fulcrum.api.database.relational.RelationalInteraction;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

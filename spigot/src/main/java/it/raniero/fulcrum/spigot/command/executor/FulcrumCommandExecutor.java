@@ -1,7 +1,7 @@
 package it.raniero.fulcrum.spigot.command.executor;
 
+import it.raniero.fulcrum.api.server.FulcrumServer;
 import it.raniero.fulcrum.command.FulcrumCommand;
-import it.raniero.fulcrum.server.FulcrumServer;
 import it.raniero.fulcrum.spigot.command.source.FulcrumSpigotSource;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,9 @@ public class FulcrumCommandExecutor extends BukkitCommand {
     public FulcrumCommandExecutor(FulcrumCommand fulcrumCommand, FulcrumServer fulcrumServer) {
         super(
                 fulcrumCommand.getCommandScheme().label(),
-                fulcrumCommand.getCommandScheme().description(),
+                fulcrumCommand.getCommandScheme().description() == null
+                        ? ""
+                        : fulcrumCommand.getCommandScheme().description(),
                 "",
                 fulcrumCommand.getCommandScheme().aliases() == null
                         ? new ArrayList<>()

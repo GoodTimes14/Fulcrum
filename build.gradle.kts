@@ -29,9 +29,6 @@ subprojects {
         maven {
             url = uri("https://jitpack.io")
         }
-        maven {
-            url = uri("https://repo.onarandombox.com/public")
-        }
 
         maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
 

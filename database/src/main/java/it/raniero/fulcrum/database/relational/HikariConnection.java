@@ -2,7 +2,9 @@ package it.raniero.fulcrum.database.relational;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import it.raniero.fulcrum.database.properties.DatabaseProperties;
+import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
+import it.raniero.fulcrum.api.database.relational.RelationalConnection;
+import it.raniero.fulcrum.api.database.relational.RelationalInteraction;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +15,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
+import lombok.experimental.Accessors;
 
 public class HikariConnection implements RelationalConnection {
 
@@ -24,9 +27,15 @@ public class HikariConnection implements RelationalConnection {
     @Getter
     private long lastActionTime = -1;
 
+    @Getter
+    @Accessors(fluent = true)
+    private DatabaseProperties properties;
+
     @Override
     public void connect(DatabaseProperties properties, Logger logger) {
         this.logger = logger;
+        this.properties = properties;
+
         HikariConfig config = new HikariConfig();
 
         config.setJdbcUrl(
@@ -149,9 +158,8 @@ public class HikariConnection implements RelationalConnection {
     }
 
     @Override
-    public CompletableFuture<Void> runAsyncContext(Runnable task) {
-        lastActionTime = System.currentTimeMillis();
-        return CompletableFuture.runAsync(task, connectionThreadPool);
+    public CompletableFuture<Void> async(Runnable action) {
+        return CompletableFuture.runAsync(action, connectionThreadPool);
     }
 
     @Override

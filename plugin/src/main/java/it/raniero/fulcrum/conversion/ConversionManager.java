@@ -1,8 +1,10 @@
 package it.raniero.fulcrum.conversion;
 
 import it.raniero.fulcrum.Fulcrum;
-import it.raniero.fulcrum.command.context.ICommandContext;
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.command.context.ICommandContext;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.conversion.IConversionManager;
+import it.raniero.fulcrum.api.conversion.IConverter;
 import it.raniero.fulcrum.conversion.impl.*;
 import java.util.HashMap;
 import java.util.Map;

@@ -1,14 +1,16 @@
 package it.raniero.fulcrum;
 
+import it.raniero.fulcrum.api.FulcrumAPI;
+import it.raniero.fulcrum.api.FulcrumPlugin;
+import it.raniero.fulcrum.api.conversion.IConversionManager;
+import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
+import it.raniero.fulcrum.api.utils.RedisProperties;
 import it.raniero.fulcrum.command.manager.CommandManager;
 import it.raniero.fulcrum.config.FulcrumConfig;
 import it.raniero.fulcrum.config.holder.FulcrumDatabaseHolder;
 import it.raniero.fulcrum.config.holder.FulcrumMessagesHolder;
 import it.raniero.fulcrum.conversion.ConversionManager;
-import it.raniero.fulcrum.conversion.IConversionManager;
 import it.raniero.fulcrum.database.FulcrumDatabase;
-import it.raniero.fulcrum.database.properties.DatabaseProperties;
-import it.raniero.fulcrum.utils.RedisProperties;
 import java.util.List;
 import lombok.Getter;
 

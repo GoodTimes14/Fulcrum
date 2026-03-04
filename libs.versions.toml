@@ -7,6 +7,7 @@ configme = "1.4.1"
 lettuce = "6.8.1.RELEASE"
 hikaricp = "6.2.1"
 bungeecord = "1.21-R0.4"
+velocity = "3.4.0-SNAPSHOT"
 
 [libraries]
 shadow = { "group" = "com.gradleup.shadow", name = "shadow-gradle-plugin", version.ref = "shadow"}
@@ -14,6 +15,7 @@ lombok = { group = "io.freefair.gradle", name = "lombok-plugin", version.ref = "
 spotless = {group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
 spigot = {group = "org.spigotmc",name = "spigot", version.ref = "spigot"}
 configme = {group = "ch.jalu", name = "configme", version.ref = "configme"}
+velocity = {group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity"}
 lettuce = {group = "io.lettuce", name ="lettuce-core", version.ref = "lettuce"}
 hikaricp = {group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp"}
 bungeecord = {group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord"}

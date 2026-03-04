@@ -1,9 +1,10 @@
 package it.raniero.fulcrum.bungeecord.command.register;
 
+import it.raniero.fulcrum.api.command.IFulcrumCommand;
+import it.raniero.fulcrum.api.command.manager.ICommandRegister;
+import it.raniero.fulcrum.api.command.scheme.CommandScheme;
 import it.raniero.fulcrum.bungeecord.FulcrumBungee;
 import it.raniero.fulcrum.bungeecord.command.FulcrumCommandBungee;
-import it.raniero.fulcrum.command.IFulcrumCommand;
-import it.raniero.fulcrum.command.manager.ICommandRegister;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -27,6 +28,23 @@ public class BungeeCordCommandRegister implements ICommandRegister {
         } catch (Exception e) {
             fulcrumBungee.getLogger().log(Level.SEVERE, "Error while registering command: ", e);
         }
+    }
+
+    @Override
+    public void wrapCommand(IFulcrumCommand command) {
+        FulcrumCommandBungee commandBungee = new FulcrumCommandBungee(fulcrumBungee.getFulcrum()) {
+            @Override
+            public String plugin() {
+                return command.plugin();
+            }
+
+            @Override
+            public CommandScheme scheme() {
+                return command.scheme();
+            }
+        };
+
+        registerCommand(commandBungee);
     }
 
     @Override

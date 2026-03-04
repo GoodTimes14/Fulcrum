@@ -1,6 +1,6 @@
 package it.raniero.fulcrum.command.exception;
 
-import it.raniero.fulcrum.command.IFulcrumCommand;
+import it.raniero.fulcrum.api.command.IFulcrumCommand;
 import lombok.Getter;
 
 @Getter

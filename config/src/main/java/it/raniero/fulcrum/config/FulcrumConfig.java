@@ -4,6 +4,7 @@ import ch.jalu.configme.SettingsHolder;
 import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
 import ch.jalu.configme.properties.Property;
+import it.raniero.fulcrum.api.config.IFulcrumConfig;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;

@@ -15,20 +15,25 @@ repositories {
 
 dependencies {
     compileOnly(libs.bungeecord)
+    compileOnly(libs.configme)
     implementation(project(":API"))
     implementation(project(":plugin"))
     implementation(project(":database"))
     implementation(project(":config"))
+
+    implementation("net.kyori:adventure-platform-bungeecord:4.4.1")
 
 }
 
 publishing.publications.create<MavenPublication>("maven") {
 
     artifactId = "fulcrum-" + project.name
-    version = rootProject.version.toString()
+    version = correctVersion(rootProject.version.toString() + (if (isSnapshot()) "-" + getGitBranch() else ""))
     group = rootProject.group.toString()
 
 
+
+    artifact(tasks.named("sourcesJar"))
     artifact(tasks.named<ShadowJar>("shadowJar"))
 }
 

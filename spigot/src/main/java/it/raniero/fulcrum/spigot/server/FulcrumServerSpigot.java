@@ -1,7 +1,7 @@
 package it.raniero.fulcrum.spigot.server;
 
-import it.raniero.fulcrum.command.context.source.FulcrumSource;
-import it.raniero.fulcrum.server.FulcrumServer;
+import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
+import it.raniero.fulcrum.api.server.FulcrumServer;
 import it.raniero.fulcrum.spigot.command.source.FulcrumSpigotSource;
 import java.util.ArrayList;
 import java.util.List;

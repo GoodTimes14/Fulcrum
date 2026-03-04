@@ -1,0 +1,3 @@
+NEXUS_URL=urlhere
+NEXUS_REPO_USERNAME=userhere
+NEXUS_REPO_PASSWORD=passhere

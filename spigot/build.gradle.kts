@@ -13,6 +13,8 @@ repositories {
 
 dependencies {
     compileOnly(libs.spigot)
+    compileOnly(libs.configme)
+    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
     implementation(project(":API"))
     implementation(project(":plugin"))
     implementation(project(":database"))
@@ -27,6 +29,7 @@ publishing.publications.create<MavenPublication>("maven") {
     version = correctVersion(rootProject.version.toString() + (if (isSnapshot()) "-" + getGitBranch() else ""))
     group = rootProject.group.toString()
 
+    artifact(tasks.named("sourcesJar"))
     artifact(tasks.named<ShadowJar>("shadowJar"))
 }
 

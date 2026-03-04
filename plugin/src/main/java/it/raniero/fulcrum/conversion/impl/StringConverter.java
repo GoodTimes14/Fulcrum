@@ -1,6 +1,6 @@
 package it.raniero.fulcrum.conversion.impl;
 
-import it.raniero.fulcrum.conversion.IConverter;
+import it.raniero.fulcrum.api.conversion.IConverter;
 
 public class StringConverter implements IConverter<String> {
 

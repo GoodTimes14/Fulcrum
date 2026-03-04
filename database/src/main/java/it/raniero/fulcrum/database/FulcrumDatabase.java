@@ -1,11 +1,12 @@
 package it.raniero.fulcrum.database;
 
-import it.raniero.fulcrum.database.properties.ConnectionType;
-import it.raniero.fulcrum.database.properties.DatabaseProperties;
-import it.raniero.fulcrum.database.redis.IRedisConnection;
+import it.raniero.fulcrum.api.database.IFulcrumDatabase;
+import it.raniero.fulcrum.api.database.properties.ConnectionType;
+import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
+import it.raniero.fulcrum.api.database.redis.IRedisConnection;
+import it.raniero.fulcrum.api.database.relational.RelationalConnection;
 import it.raniero.fulcrum.database.redis.LettuceConnection;
 import it.raniero.fulcrum.database.relational.HikariConnection;
-import it.raniero.fulcrum.database.relational.RelationalConnection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,6 +85,16 @@ public class FulcrumDatabase implements IFulcrumDatabase {
     @Override
     public Optional<IRedisConnection> getRedisConnection(String name) {
         return Optional.ofNullable(redisConnections.get(name));
+    }
+
+    @Override
+    public Map<String, RelationalConnection> getAllRelationalConnections() {
+        return Map.copyOf(databaseConnections);
+    }
+
+    @Override
+    public Map<String, IRedisConnection> getAllRedisConnections() {
+        return Map.copyOf(redisConnections);
     }
 
     @Override

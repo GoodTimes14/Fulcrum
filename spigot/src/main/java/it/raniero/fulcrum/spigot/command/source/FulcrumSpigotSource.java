@@ -10,6 +10,8 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 public class FulcrumSpigotSource implements FulcrumSource {
 
@@ -33,6 +35,11 @@ public class FulcrumSpigotSource implements FulcrumSource {
         } else {
             sender.sendMessage(LegacyComponentSerializer.legacySection().serialize(component));
         }
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return sender instanceof Player player ? player.getUniqueId() : null;
     }
 
     @Override

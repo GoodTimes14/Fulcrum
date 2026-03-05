@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 public class FulcrumVelocitySource implements FulcrumSource {
 
@@ -29,6 +31,11 @@ public class FulcrumVelocitySource implements FulcrumSource {
     @Override
     public void sendMessage(Component component) {
         source.sendMessage(component);
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return source instanceof Player player ? player.getUniqueId() : null;
     }
 
     @Override

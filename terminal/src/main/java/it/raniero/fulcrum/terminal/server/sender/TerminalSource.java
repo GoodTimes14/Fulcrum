@@ -3,6 +3,8 @@ package it.raniero.fulcrum.terminal.server.sender;
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
 import java.io.PrintStream;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
@@ -26,6 +28,11 @@ public class TerminalSource implements FulcrumSource {
     @Override
     public void sendMessage(Component component) {
         outputStream.println("");
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return null;
     }
 
     @Override

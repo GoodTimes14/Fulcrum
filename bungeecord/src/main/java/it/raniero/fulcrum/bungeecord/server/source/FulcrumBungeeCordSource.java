@@ -10,6 +10,8 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 public class FulcrumBungeeCordSource implements FulcrumSource {
 
@@ -28,6 +30,11 @@ public class FulcrumBungeeCordSource implements FulcrumSource {
     @Override
     public void sendMessage(Component component) {
         sender.sendMessage(BungeeComponentSerializer.legacy().serialize(component));
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return sender instanceof ProxiedPlayer player ? player.getUniqueId() : null;
     }
 
     @Override

@@ -2,6 +2,8 @@ package it.raniero.fulcrum.api.command.context.source;
 
 import net.kyori.adventure.text.Component;
 
+import java.util.UUID;
+
 public interface FulcrumSource {
 
     Object getSourceObject();
@@ -9,6 +11,8 @@ public interface FulcrumSource {
     void sendMessage(String text);
 
     void sendMessage(Component component);
+
+    UUID getUniqueId();
 
     SourceType sourceType();
 

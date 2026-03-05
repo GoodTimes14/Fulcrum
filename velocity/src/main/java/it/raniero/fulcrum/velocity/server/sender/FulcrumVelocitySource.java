@@ -39,6 +39,11 @@ public class FulcrumVelocitySource implements FulcrumSource {
     }
 
     @Override
+    public String getName() {
+        return source instanceof Player player ? player.getUsername() : "velocityconsolesource";
+    }
+
+    @Override
     public SourceType sourceType() {
         return source instanceof Player ? SourceType.PLAYER : SourceType.CONSOLE;
     }

@@ -43,6 +43,11 @@ public class FulcrumSpigotSource implements FulcrumSource {
     }
 
     @Override
+    public String getName() {
+        return sender.getName();
+    }
+
+    @Override
     public SourceType sourceType() {
         return sender instanceof Player ? SourceType.PLAYER : SourceType.CONSOLE;
     }

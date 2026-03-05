@@ -36,6 +36,11 @@ public class TerminalSource implements FulcrumSource {
     }
 
     @Override
+    public String getName() {
+        return "Terminal";
+    }
+
+    @Override
     public SourceType sourceType() {
         return SourceType.PLAYER;
     }

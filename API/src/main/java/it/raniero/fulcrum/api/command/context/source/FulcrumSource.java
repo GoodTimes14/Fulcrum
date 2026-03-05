@@ -14,6 +14,8 @@ public interface FulcrumSource {
 
     UUID getUniqueId();
 
+    String getName();
+
     SourceType sourceType();
 
     boolean hasPermission(String permissionNode);

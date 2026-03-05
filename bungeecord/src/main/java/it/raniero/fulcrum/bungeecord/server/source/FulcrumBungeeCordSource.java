@@ -38,6 +38,11 @@ public class FulcrumBungeeCordSource implements FulcrumSource {
     }
 
     @Override
+    public String getName() {
+        return sender.getName();
+    }
+
+    @Override
     public SourceType sourceType() {
         return sender instanceof ProxiedPlayer ? SourceType.PLAYER : SourceType.CONSOLE;
     }

@@ -9,7 +9,7 @@ public final class CommandUtils {
     }
 
     public static List<String> filterStringsByInput(String input, List<String> strings) {
-        strings.removeIf(str -> !str.toLowerCase().startsWith(input.toLowerCase()));
+        strings.removeIf(str -> input == null || !str.toLowerCase().startsWith(input.toLowerCase()));
         return strings;
     }
 }

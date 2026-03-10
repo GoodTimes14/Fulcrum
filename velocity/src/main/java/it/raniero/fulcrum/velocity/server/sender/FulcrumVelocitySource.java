@@ -5,11 +5,10 @@ import com.velocitypowered.api.proxy.Player;
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
 import it.raniero.fulcrum.api.utils.MessageUtils;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class FulcrumVelocitySource implements FulcrumSource {

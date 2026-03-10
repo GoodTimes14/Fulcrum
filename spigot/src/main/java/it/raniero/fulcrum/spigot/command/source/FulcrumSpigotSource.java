@@ -3,14 +3,13 @@ package it.raniero.fulcrum.spigot.command.source;
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
 import it.raniero.fulcrum.api.utils.MessageUtils;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class FulcrumSpigotSource implements FulcrumSource {

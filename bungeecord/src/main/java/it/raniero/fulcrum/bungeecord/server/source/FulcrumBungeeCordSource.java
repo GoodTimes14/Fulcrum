@@ -2,6 +2,7 @@ package it.raniero.fulcrum.bungeecord.server.source;
 
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
@@ -9,8 +10,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class FulcrumBungeeCordSource implements FulcrumSource {

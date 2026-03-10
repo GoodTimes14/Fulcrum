@@ -29,16 +29,18 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
     private CommandScheme commandScheme;
 
     public FulcrumCommand(Fulcrum fulcrum) {
+        this(fulcrum, true);
+    }
+
+    public FulcrumCommand(Fulcrum fulcrum, boolean registerScheme) {
         this.fulcrum = fulcrum;
-        registerScheme(scheme());
+        if (registerScheme) {
+            registerScheme(scheme());
+        }
     }
 
     @Override
     public void registerScheme(CommandScheme commandScheme) {
-        if (this.commandScheme != null) {
-            throw new FulcrumCommandException(this, "CommandScheme is already registered");
-        }
-
         this.commandScheme = commandScheme;
         this.commandScheme.parentizeSubCommands();
     }
@@ -309,7 +311,10 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
                 : parent.labelColor();
 
         Component commandComponent = MessageUtils.convertLegacyText(labelColor + "/" + label);
-        schemes.remove(0);
+        if (!schemes.isEmpty()) {
+            schemes.remove(0);
+        }
+
         commandComponent = addSubCommandComponents(commandComponent, schemes);
         commandComponent = addArgumentComponents(commandComponent, scheme, parent);
         commandComponent = addDescriptionComponent(commandComponent, scheme, parent);

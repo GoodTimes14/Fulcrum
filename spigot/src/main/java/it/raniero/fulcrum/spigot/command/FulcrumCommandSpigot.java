@@ -15,6 +15,10 @@ public abstract class FulcrumCommandSpigot extends FulcrumCommand {
         super(fulcrum);
     }
 
+    public FulcrumCommandSpigot(Fulcrum fulcrum, boolean registerScheme) {
+        super(fulcrum, registerScheme);
+    }
+
     @Override
     public void registerScheme(CommandScheme scheme) {
         super.registerScheme(scheme);

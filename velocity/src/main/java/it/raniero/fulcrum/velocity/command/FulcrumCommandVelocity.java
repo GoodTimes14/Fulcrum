@@ -8,4 +8,8 @@ public abstract class FulcrumCommandVelocity extends FulcrumCommand {
     public FulcrumCommandVelocity(Fulcrum fulcrum) {
         super(fulcrum);
     }
+
+    public FulcrumCommandVelocity(Fulcrum fulcrum, boolean registerScheme) {
+        super(fulcrum, registerScheme);
+    }
 }

@@ -36,7 +36,7 @@ jobs:
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
     - name: Setup Gradle Properties
-      run: touch gradle.properties && echo NEXUS_URL=${NEXUS_URL}\nNEXUS_REPO_USERNAME=${NEXUS_REPO_USERNAME}\nNEXUS_REPO_PASSWORD=${NEXUS_REPO_PASSWORD} > gradle.properties
+      run: touch gradle.properties && echo -e NEXUS_URL=${NEXUS_URL}\nNEXUS_REPO_USERNAME=${NEXUS_REPO_USERNAME}\nNEXUS_REPO_PASSWORD=${NEXUS_REPO_PASSWORD} > gradle.properties
       env:
         NEXUS_URL: ${{secrets.NEXUS_URL}}
         NEXUS_REPO_USERNAME: ${{secrets.NEXUS_REPO_USERNAME}}

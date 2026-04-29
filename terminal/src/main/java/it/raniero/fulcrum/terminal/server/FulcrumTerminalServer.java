@@ -5,17 +5,21 @@ import it.raniero.fulcrum.api.server.FulcrumServer;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
+import lombok.Getter;
 
+@Getter
 public class FulcrumTerminalServer implements FulcrumServer {
+
+    private Predicate<UUID> playerVisibilityPredicate = uuid -> true;
 
     @Override
     public Class<?> getSenderClass() {
-        return null;
+        return FulcrumSource.class;
     }
 
     @Override
     public Class<?> getPlayerClass() {
-        return null;
+        return Void.class;
     }
 
     @Override
@@ -35,9 +39,11 @@ public class FulcrumTerminalServer implements FulcrumServer {
 
     @Override
     public Predicate<UUID> getPlayerVisibilityPredicate() {
-        return null;
+        return playerVisibilityPredicate;
     }
 
     @Override
-    public void setPlayerVisibilityPredicate(Predicate<UUID> predicate) {}
+    public void setPlayerVisibilityPredicate(Predicate<UUID> predicate) {
+        playerVisibilityPredicate = predicate;
+    }
 }

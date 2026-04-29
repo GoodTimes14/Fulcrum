@@ -2,11 +2,14 @@ package it.raniero.fulcrum.terminal.server.sender;
 
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
+import it.raniero.fulcrum.api.utils.MessageUtils;
 import java.io.PrintStream;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.ansi.ANSIComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 @Getter
 @RequiredArgsConstructor
@@ -21,12 +24,14 @@ public class TerminalSource implements FulcrumSource {
 
     @Override
     public void sendMessage(String mess) {
-        outputStream.println(mess);
+        Component component = LegacyComponentSerializer.legacySection().deserialize(MessageUtils.translateColors(mess));
+        sendMessage(component);
     }
 
     @Override
     public void sendMessage(Component component) {
-        outputStream.println("");
+        String serialized = ANSIComponentSerializer.ansi().serialize(component);
+        outputStream.println(serialized);
     }
 
     @Override
@@ -41,7 +46,7 @@ public class TerminalSource implements FulcrumSource {
 
     @Override
     public SourceType sourceType() {
-        return SourceType.PLAYER;
+        return SourceType.CONSOLE;
     }
 
     @Override

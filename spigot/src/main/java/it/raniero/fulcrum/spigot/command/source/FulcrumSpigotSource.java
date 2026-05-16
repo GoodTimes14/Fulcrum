@@ -3,6 +3,7 @@ package it.raniero.fulcrum.spigot.command.source;
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
 import it.raniero.fulcrum.api.utils.MessageUtils;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
@@ -33,6 +34,16 @@ public class FulcrumSpigotSource implements FulcrumSource {
         } else {
             sender.sendMessage(LegacyComponentSerializer.legacySection().serialize(component));
         }
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return sender instanceof Player player ? player.getUniqueId() : null;
+    }
+
+    @Override
+    public String getName() {
+        return sender.getName();
     }
 
     @Override

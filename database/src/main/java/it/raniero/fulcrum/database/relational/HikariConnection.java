@@ -45,7 +45,7 @@ public class HikariConnection implements RelationalConnection {
             config.setPassword(properties.getPassword());
         }
 
-        config.setDriverClassName("it.raniero.fulcrum.libs.com.mysql.cj.jdbc.Driver");
+        config.setDriverClassName(resolveMysqlDriverClassName());
 
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
@@ -57,10 +57,9 @@ public class HikariConnection implements RelationalConnection {
         config.addDataSourceProperty("cacheServerConfiguration", "true");
         config.addDataSourceProperty("elideSetAutoCommits", "true");
         config.addDataSourceProperty("maintainTimeStats", "false");
-        config.addDataSourceProperty("enabledTLSProtocols", "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3");
+        config.addDataSourceProperty("enabledTLSProtocols", "TLSv1.2,TLSv1.3");
         config.addDataSourceProperty("databaseName", properties.getDatabase());
         config.addDataSourceProperty("autoReconnect", true);
-        config.addDataSourceProperty("allowMultiQueries", true);
 
         dataSource = new HikariDataSource(config);
 
@@ -160,6 +159,16 @@ public class HikariConnection implements RelationalConnection {
     @Override
     public CompletableFuture<Void> async(Runnable action) {
         return CompletableFuture.runAsync(action, connectionThreadPool);
+    }
+
+    private static String resolveMysqlDriverClassName() {
+        String relocated = "it.raniero.fulcrum.libs.com.mysql.cj.jdbc.Driver";
+        try {
+            Class.forName(relocated, false, HikariConnection.class.getClassLoader());
+            return relocated;
+        } catch (ClassNotFoundException e) {
+            return "com.mysql.cj.jdbc.Driver";
+        }
     }
 
     @Override

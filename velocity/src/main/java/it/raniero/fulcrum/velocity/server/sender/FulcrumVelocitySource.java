@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.Player;
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
 import it.raniero.fulcrum.api.utils.MessageUtils;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -29,6 +30,16 @@ public class FulcrumVelocitySource implements FulcrumSource {
     @Override
     public void sendMessage(Component component) {
         source.sendMessage(component);
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return source instanceof Player player ? player.getUniqueId() : null;
+    }
+
+    @Override
+    public String getName() {
+        return source instanceof Player player ? player.getUsername() : "velocityconsolesource";
     }
 
     @Override

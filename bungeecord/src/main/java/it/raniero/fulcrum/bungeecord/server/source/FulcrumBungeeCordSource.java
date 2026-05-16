@@ -2,6 +2,7 @@ package it.raniero.fulcrum.bungeecord.server.source;
 
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
@@ -28,6 +29,16 @@ public class FulcrumBungeeCordSource implements FulcrumSource {
     @Override
     public void sendMessage(Component component) {
         sender.sendMessage(BungeeComponentSerializer.legacy().serialize(component));
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return sender instanceof ProxiedPlayer player ? player.getUniqueId() : null;
+    }
+
+    @Override
+    public String getName() {
+        return sender.getName();
     }
 
     @Override

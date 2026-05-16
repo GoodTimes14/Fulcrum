@@ -15,6 +15,10 @@ public abstract class FulcrumCommandBungee extends FulcrumCommand {
         super(fulcrum);
     }
 
+    public FulcrumCommandBungee(Fulcrum fulcrum, boolean registerScheme) {
+        super(fulcrum, registerScheme);
+    }
+
     @Override
     public void registerScheme(CommandScheme commandScheme) {
         super.registerScheme(commandScheme);

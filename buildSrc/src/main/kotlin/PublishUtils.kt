@@ -1,16 +1,21 @@
 import java.io.ByteArrayOutputStream
 
 fun getGitBranch(): String {
+    // GitHub Actions may be in detached HEAD; use env vars first
+    System.getenv("GITHUB_HEAD_REF")?.takeIf { it.isNotEmpty() }?.let { return it }
+    System.getenv("GITHUB_REF_NAME")?.takeIf { it.isNotEmpty() }?.let { return it }
+    val githubRef = System.getenv("GITHUB_REF")
+    if (githubRef != null && githubRef.startsWith("refs/heads/")) {
+        return githubRef.removePrefix("refs/heads/")
+    }
+
     val stdout = ByteArrayOutputStream()
-
-
     ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD")
         .redirectErrorStream(true)
         .start()
         .apply { waitFor() }
         .inputStream
         .use { stdout.writeBytes(it.readAllBytes()) }
-
 
     return stdout.toString().trim()
 }

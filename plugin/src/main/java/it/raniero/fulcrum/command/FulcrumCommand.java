@@ -29,16 +29,18 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
     private CommandScheme commandScheme;
 
     public FulcrumCommand(Fulcrum fulcrum) {
+        this(fulcrum, true);
+    }
+
+    public FulcrumCommand(Fulcrum fulcrum, boolean registerScheme) {
         this.fulcrum = fulcrum;
-        registerScheme(scheme());
+        if (registerScheme) {
+            registerScheme(scheme());
+        }
     }
 
     @Override
     public void registerScheme(CommandScheme commandScheme) {
-        if (this.commandScheme != null) {
-            throw new FulcrumCommandException(this, "CommandScheme is already registered");
-        }
-
         this.commandScheme = commandScheme;
         this.commandScheme.parentizeSubCommands();
     }
@@ -309,22 +311,28 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
                 : parent.labelColor();
 
         Component commandComponent = MessageUtils.convertLegacyText(labelColor + "/" + label);
-        schemes.remove(0);
-        commandComponent = addSubCommandComponents(commandComponent, schemes);
+        if (!schemes.isEmpty()) {
+            schemes.remove(0);
+        }
+
+        commandComponent = addSubCommandComponents(commandComponent, schemes, parent);
         commandComponent = addArgumentComponents(commandComponent, scheme, parent);
         commandComponent = addDescriptionComponent(commandComponent, scheme, parent);
 
         source.sendMessage(commandComponent);
     }
 
-    private Component addSubCommandComponents(Component component, List<CommandScheme> schemes) {
+    private Component addSubCommandComponents(Component component, List<CommandScheme> schemes, CommandScheme parent) {
+
+        String defaultLabelColor = parent.labelColor() == null
+                ? getFulcrum()
+                        .getMainConfig()
+                        .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_SUBLABEL_COLOR)
+                : parent.labelColor();
+
         for (CommandScheme subScheme : schemes) {
 
-            String subCommandColor = subScheme.labelColor() == null
-                    ? getFulcrum()
-                            .getMainConfig()
-                            .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.DEFAULT_SUBLABEL_COLOR)
-                    : subScheme.labelColor();
+            String subCommandColor = subScheme.labelColor() == null ? defaultLabelColor : subScheme.labelColor();
 
             String description = subScheme.description() == null ? "N/D" : subScheme.description();
 

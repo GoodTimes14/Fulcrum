@@ -6,53 +6,50 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseLockManager<T> implements ILockManager<T> {
 
-    private final Map<T, Object> locks = new ConcurrentHashMap<>();
+    private static final class LockHolder {
+        final Object lock = new Object();
+        int count;
+    }
 
-    private final Map<T, Integer> workingCounts = new ConcurrentHashMap<>();
+    private final Map<T, LockHolder> holders = new ConcurrentHashMap<>();
 
     @Override
     public Object lockObject(T id) {
-
-        if (workingCounts.containsKey(id)) {
-
-            workingCounts.put(id, workingCounts.get(id) + 1);
-            return locks.get(id);
-
-        } else {
-
-            Object lock = new Object();
-
-            workingCounts.put(id, 1);
-            locks.put(id, lock);
-            return lock;
-        }
+        LockHolder holder = holders.compute(id, (key, existing) -> {
+            LockHolder current = existing != null ? existing : new LockHolder();
+            current.count++;
+            return current;
+        });
+        return holder.lock;
     }
 
     @Override
     public void unlockObject(T id) {
-        int workingCount = workingCounts.get(id);
-        if (--workingCount == 0) {
-
-            Object lock = locks.remove(id);
-
-            synchronized (lock) {
-                lock.notify();
+        holders.compute(id, (key, existing) -> {
+            if (existing == null) {
+                return null;
             }
 
-            workingCounts.remove(id);
+            existing.count--;
+            if (existing.count > 0) {
+                return existing;
+            }
 
-        } else {
-            workingCounts.put(id, workingCount);
-        }
+            synchronized (existing.lock) {
+                existing.lock.notifyAll();
+            }
+            return null;
+        });
     }
 
     @Override
     public Object getLock(T id) {
-        return locks.get(id);
+        LockHolder holder = holders.get(id);
+        return holder != null ? holder.lock : null;
     }
 
     @Override
     public boolean isLocked(T id) {
-        return locks.containsKey(id);
+        return holders.containsKey(id);
     }
 }

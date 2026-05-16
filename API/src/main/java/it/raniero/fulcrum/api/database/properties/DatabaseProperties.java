@@ -18,6 +18,13 @@ public class DatabaseProperties {
     private String username;
     private String password;
 
+    private boolean ssl;
+
+    @Builder.Default
+    private boolean verifyPeer = true;
+
+    private boolean startTls;
+
     public boolean isAuth() {
         return password != null;
     }

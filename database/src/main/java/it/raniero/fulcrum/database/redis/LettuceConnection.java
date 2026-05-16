@@ -47,7 +47,14 @@ public class LettuceConnection implements IRedisConnection {
     @Override
     public void connect(DatabaseProperties properties) {
 
-        RedisURI uri = RedisURI.create(properties.getHost(), properties.getPort());
+        RedisURI uri = RedisURI.builder()
+                .withHost(properties.getHost())
+                .withPort(properties.getPort())
+                .withSsl(properties.isSsl())
+                .withStartTls(properties.isStartTls())
+                .withVerifyPeer(properties.isVerifyPeer() ? SslVerifyMode.FULL : SslVerifyMode.NONE)
+                .build();
+
         if (properties.isAuth()) {
 
             RedisCredentials credentials = RedisCredentials.just("default", properties.getPassword());

@@ -17,4 +17,27 @@ dependencies {
     implementation("net.kyori:adventure-api:4.26.1")
     implementation("net.kyori:adventure-api:4.26.1")
 
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.21.4"))
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:mysql")
+
+    testImplementation("org.assertj:assertj-core:3.27.3")
+    testImplementation("org.awaitility:awaitility:4.2.2")
+    testRuntimeOnly("org.slf4j:slf4j-simple:2.0.16")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("failed", "skipped")
+        showStandardStreams = false
+    }
+    // Force a modern Docker API version so docker-java (bundled with Testcontainers)
+    // negotiates correctly with newer daemons that have dropped pre-1.40 support.
+    environment("DOCKER_API_VERSION", "1.43")
 }

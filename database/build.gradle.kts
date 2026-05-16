@@ -13,7 +13,7 @@ dependencies {
     implementation(libs.lettuce)
     implementation(libs.hikaricp)
     implementation("org.apache.commons:commons-pool2:2.12.0")
-    implementation("com.mysql:mysql-connector-j:9.2.0")
+    implementation("com.mysql:mysql-connector-j:9.3.0")
     implementation("net.kyori:adventure-api:4.26.1")
     implementation("net.kyori:adventure-api:4.26.1")
 
@@ -26,7 +26,7 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:mysql")
 
-    testImplementation("org.assertj:assertj-core:3.27.3")
+    testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.awaitility:awaitility:4.2.2")
     testRuntimeOnly("org.slf4j:slf4j-simple:2.0.16")
 }

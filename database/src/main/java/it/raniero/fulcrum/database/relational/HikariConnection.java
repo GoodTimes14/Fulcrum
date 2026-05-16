@@ -57,10 +57,9 @@ public class HikariConnection implements RelationalConnection {
         config.addDataSourceProperty("cacheServerConfiguration", "true");
         config.addDataSourceProperty("elideSetAutoCommits", "true");
         config.addDataSourceProperty("maintainTimeStats", "false");
-        config.addDataSourceProperty("enabledTLSProtocols", "TLSv1,TLSv1.1,TLSv1.2,TLSv1.3");
+        config.addDataSourceProperty("enabledTLSProtocols", "TLSv1.2,TLSv1.3");
         config.addDataSourceProperty("databaseName", properties.getDatabase());
         config.addDataSourceProperty("autoReconnect", true);
-        config.addDataSourceProperty("allowMultiQueries", true);
 
         dataSource = new HikariDataSource(config);
 

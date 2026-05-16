@@ -14,13 +14,27 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
+@EnabledIf("dockerAvailable")
 class HikariConnectionTest {
+
+    static boolean dockerAvailable() {
+        if (Boolean.getBoolean("fulcrum.skipDockerTests")) {
+            return false;
+        }
+        try {
+            return DockerClientFactory.instance().isDockerAvailable();
+        } catch (Throwable t) {
+            return false;
+        }
+    }
 
     @Container
     static final MySQLContainer<?> MYSQL =

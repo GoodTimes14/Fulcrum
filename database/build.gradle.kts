@@ -40,4 +40,9 @@ tasks.test {
     // Force a modern Docker API version so docker-java (bundled with Testcontainers)
     // negotiates correctly with newer daemons that have dropped pre-1.40 support.
     environment("DOCKER_API_VERSION", "1.43")
+
+    // Pass -PskipDockerTests to disable Testcontainers-backed tests (lock tests still run).
+    val skipDocker = providers.gradleProperty("skipDockerTests").isPresent
+            || System.getenv("FULCRUM_SKIP_DOCKER_TESTS") == "true"
+    systemProperty("fulcrum.skipDockerTests", skipDocker.toString())
 }

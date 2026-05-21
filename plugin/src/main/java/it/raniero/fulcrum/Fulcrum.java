@@ -4,7 +4,6 @@ import it.raniero.fulcrum.api.FulcrumAPI;
 import it.raniero.fulcrum.api.FulcrumPlugin;
 import it.raniero.fulcrum.api.conversion.IConversionManager;
 import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
-import it.raniero.fulcrum.api.utils.RedisProperties;
 import it.raniero.fulcrum.command.manager.CommandManager;
 import it.raniero.fulcrum.config.FulcrumConfig;
 import it.raniero.fulcrum.config.holder.FulcrumDatabaseHolder;
@@ -53,12 +52,6 @@ public class Fulcrum implements FulcrumAPI {
             }
         }
     }
-
-    @Override
-    public void createDatabase(DatabaseProperties databaseProperties) {}
-
-    @Override
-    public void createRedis(RedisProperties redisProperties) {}
 
     @Override
     public void stop() {

@@ -21,9 +21,9 @@ public class FulcrumDatabaseHolder implements SettingsHolder {
                 .name("test")
                 .host("localhost")
                 .port(3306)
-                .database("test")
-                .username("testuser")
-                .password("testpass")
+                .database("<CHANGE-ME>")
+                .username("<CHANGE-ME>")
+                .password("<CHANGE-ME>")
                 .build());
 
         DATABASES = new ListProperty<>("databases", BeanPropertyType.of(DatabaseProperties.class), databases);

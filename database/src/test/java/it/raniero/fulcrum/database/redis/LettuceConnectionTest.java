@@ -41,8 +41,8 @@ class LettuceConnectionTest {
     }
 
     @Container
-    static final GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
-            .withExposedPorts(REDIS_PORT);
+    static final GenericContainer<?> REDIS =
+            new GenericContainer<>(DockerImageName.parse("redis:7-alpine")).withExposedPorts(REDIS_PORT);
 
     private LettuceConnection connection;
 
@@ -108,8 +108,7 @@ class LettuceConnectionTest {
         connection.cache().set("session:b", "2");
         connection.cache().set("other:c", "3");
 
-        assertThat(connection.cache().keys("session:*"))
-                .containsExactlyInAnyOrder("session:a", "session:b");
+        assertThat(connection.cache().keys("session:*")).containsExactlyInAnyOrder("session:a", "session:b");
     }
 
     @Test
@@ -156,9 +155,7 @@ class LettuceConnectionTest {
         connection.publish("other-channel", "noise");
 
         // No interrupt — give the listener time to *not* receive on test-channel.
-        await().pollDelay(Duration.ofMillis(300))
-                .atMost(Duration.ofSeconds(2))
-                .until(() -> true);
+        await().pollDelay(Duration.ofMillis(300)).atMost(Duration.ofSeconds(2)).until(() -> true);
 
         assertThat(listener.received).isEmpty();
     }

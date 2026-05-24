@@ -18,19 +18,19 @@ Use the platform module for the server you target:
 
 ```kotlin
 dependencies {
-    implementation("it.raniero:fulcrum-spigot:<CURRENT-VERSION>")
+    compileOnly("it.raniero:fulcrum-spigot:<CURRENT-VERSION>")
 }
 ```
 
 ```kotlin
 dependencies {
-    implementation("it.raniero:fulcrum-bungeecord:<CURRENT-VERSION>")
+    compileOnly("it.raniero:fulcrum-bungeecord:<CURRENT-VERSION>")
 }
 ```
 
 ```kotlin
 dependencies {
-    implementation("it.raniero:fulcrum-velocity:<CURRENT-VERSION>")
+    compileOnly("it.raniero:fulcrum-velocity:<CURRENT-VERSION>")
 }
 ```
 
@@ -46,7 +46,7 @@ For direct database integration:
 
 ```kotlin
 dependencies {
-    implementation("it.raniero:fulcrum-database:<CURRENT-VERSION>")
+    compileOnly("it.raniero:fulcrum-database:<CURRENT-VERSION>")
 }
 ```
 
@@ -64,7 +64,7 @@ repositories {
 
 ```groovy
 dependencies {
-    implementation 'it.raniero:fulcrum-spigot:<CURRENT-VERSION>'
+    compileOnly 'it.raniero:fulcrum-spigot:<CURRENT-VERSION>'
 }
 ```
 

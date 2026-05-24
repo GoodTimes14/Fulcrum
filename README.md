@@ -5,6 +5,7 @@
 
 ## Wiki
 
+#### _Note: this wiki is AI-generated, there may be some inaccurate information_
 Practical usage examples are available in the local wiki:
 
 - [Fulcrum Usage Guide](docs/README.md)

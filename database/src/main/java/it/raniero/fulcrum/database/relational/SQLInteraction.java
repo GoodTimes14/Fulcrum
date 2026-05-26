@@ -6,6 +6,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +17,17 @@ import lombok.RequiredArgsConstructor;
 public class SQLInteraction implements RelationalInteraction {
 
     private final Connection connection;
+
     private final Logger logger;
+
+    private final Set<PreparedStatement> aliveStatements = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Override
     public ResultSet query(String sql, Object... parameters) throws SQLException {
-        try (PreparedStatement statement = StatementUtils.createStatement(connection, sql, parameters)) {
-            return statement.executeQuery();
-        }
+        PreparedStatement statement = StatementUtils.createStatement(connection, sql, parameters);
+        aliveStatements.add(statement);
+
+        return statement.executeQuery();
     }
 
     @Override
@@ -78,6 +85,10 @@ public class SQLInteraction implements RelationalInteraction {
 
     @Override
     public void close() throws SQLException {
+        for (PreparedStatement aliveStatement : aliveStatements) {
+            aliveStatement.close();
+        }
+        aliveStatements.clear();
         connection.close();
     }
 }

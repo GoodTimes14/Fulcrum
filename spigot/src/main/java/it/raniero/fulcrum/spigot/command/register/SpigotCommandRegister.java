@@ -40,7 +40,12 @@ public class SpigotCommandRegister implements ICommandRegister {
             commandMap.register(fulcrumCommand.plugin(), fulcrumCommand.getExecutor());
             spigotCommands.put(fulcrumCommand.scheme().label(), fulcrumCommand);
         } catch (Exception e) {
-            e.printStackTrace();
+            fulcrumSpigot
+                    .getLogger()
+                    .log(
+                            Level.SEVERE,
+                            "Can't register command: " + command.getClass().getSimpleName(),
+                            e);
         }
     }
 
@@ -81,7 +86,7 @@ public class SpigotCommandRegister implements ICommandRegister {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            fulcrumSpigot.getLogger().log(Level.SEVERE, "Can't unregister commands: ", e);
         }
     }
 
@@ -102,7 +107,7 @@ public class SpigotCommandRegister implements ICommandRegister {
                         .getDeclaredMethod("getKnownCommands")
                         .invoke(commandMap);
             } catch (Exception ex) {
-                fulcrumSpigot.getLogger().log(Level.SEVERE, "Can't get knownCommands", e);
+                fulcrumSpigot.getLogger().log(Level.SEVERE, "Can't get knownCommands", ex);
             }
         }
 

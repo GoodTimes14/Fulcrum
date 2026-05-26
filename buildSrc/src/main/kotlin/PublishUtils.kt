@@ -17,7 +17,7 @@ fun getGitBranch(): String {
         .inputStream
         .use { stdout.writeBytes(it.readAllBytes()) }
 
-    return stdout.toString().trim()
+    return stdout.toString().trim().replace("/","-")
 }
 
 //Credits to Grim for these methods

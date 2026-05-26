@@ -2,11 +2,11 @@ import java.io.ByteArrayOutputStream
 
 fun getGitBranch(): String {
     // GitHub Actions may be in detached HEAD; use env vars first
-    System.getenv("GITHUB_HEAD_REF")?.takeIf { it.isNotEmpty() }?.let { return it }
-    System.getenv("GITHUB_REF_NAME")?.takeIf { it.isNotEmpty() }?.let { return it }
+    System.getenv("GITHUB_HEAD_REF")?.takeIf { it.isNotEmpty() }?.let { return sanitizeVersionQualifier(it) }
+    System.getenv("GITHUB_REF_NAME")?.takeIf { it.isNotEmpty() }?.let { return sanitizeVersionQualifier(it) }
     val githubRef = System.getenv("GITHUB_REF")
     if (githubRef != null && githubRef.startsWith("refs/heads/")) {
-        return githubRef.removePrefix("refs/heads/")
+        return sanitizeVersionQualifier(githubRef.removePrefix("refs/heads/"))
     }
 
     val stdout = ByteArrayOutputStream()
@@ -17,7 +17,13 @@ fun getGitBranch(): String {
         .inputStream
         .use { stdout.writeBytes(it.readAllBytes()) }
 
-    return stdout.toString().trim().replace("/","-")
+    return sanitizeVersionQualifier(stdout.toString().trim())
+}
+
+private fun sanitizeVersionQualifier(value: String): String {
+    return value
+        .replace(Regex("[^A-Za-z0-9._-]+"), "-")
+        .trim('-', '.', '_')
 }
 
 //Credits to Grim for these methods

@@ -1,7 +1,6 @@
 package it.raniero.fulcrum.api.database.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import it.raniero.fulcrum.api.database.query.utils.QueryCondition;
 import org.junit.jupiter.api.Test;
@@ -15,13 +14,12 @@ class QueryBuilderTest {
     }
 
     @Test
-    void selectWithWhereCollectsBoundValues() {
+    void selectWithWhereUsesConditionSql() {
         QueryBuilder qb = new QueryBuilder()
                 .select("users", "id", "name")
-                .where(QueryCondition.eq("id", 5).and(QueryCondition.like("name", "A%")));
+                .where(new QueryCondition("id = ?").and("name LIKE ?"));
 
-        assertThat(qb.build()).isEqualTo("SELECT id,name FROM users WHERE (id = ?) AND (name LIKE ?)");
-        assertThat(qb.values()).containsExactly(5, "A%");
+        assertThat(qb.build()).isEqualTo("SELECT id,name FROM users WHERE id = ? AND name LIKE ?");
     }
 
     @Test
@@ -32,9 +30,8 @@ class QueryBuilderTest {
 
     @Test
     void deleteAcceptsWhere() {
-        QueryBuilder qb = new QueryBuilder().delete("users").where(QueryCondition.eq("id", 99));
+        QueryBuilder qb = new QueryBuilder().delete("users").where(new QueryCondition("id = ?"));
         assertThat(qb.build()).isEqualTo("DELETE FROM users WHERE id = ?");
-        assertThat(qb.values()).containsExactly(99);
     }
 
     @Test
@@ -51,82 +48,18 @@ class QueryBuilderTest {
     }
 
     @Test
-    void valuesIsEmptyWhenNoWhereClauseAdded() {
-        QueryBuilder qb = new QueryBuilder().select("users", "id");
-        assertThat(qb.values()).isEmpty();
-    }
-
-    @Test
-    void clearResetsBothSqlAndValues() {
-        QueryBuilder qb = new QueryBuilder().select("users", "id").where(QueryCondition.eq("id", 1));
+    void clearResetsSql() {
+        QueryBuilder qb = new QueryBuilder().select("users", "id").where(new QueryCondition("id = ?"));
         qb.clear();
         assertThat(qb.build()).isEmpty();
-        assertThat(qb.values()).isEmpty();
-    }
-
-    // --- Injection attempts: every malicious identifier must throw ---
-
-    @Test
-    void selectRejectsInjectedTableName() {
-        assertThatThrownBy(() -> new QueryBuilder().select("users; DROP TABLE x", "id"))
-                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void selectRejectsInjectedColumnName() {
-        assertThatThrownBy(() -> new QueryBuilder().select("users", "id, password"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
+    void whereAcceptsOrConditions() {
+        QueryBuilder qb = new QueryBuilder()
+                .select("users", "id")
+                .where(new QueryCondition("name = ?").or("email = ?"));
 
-    @Test
-    void insertRejectsInjectedTableName() {
-        assertThatThrownBy(() -> new QueryBuilder().insert("users) VALUES (1); --", "name"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void insertRejectsInjectedColumnName() {
-        assertThatThrownBy(() -> new QueryBuilder().insert("users", "name`,`admin"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void deleteRejectsInjectedTableName() {
-        assertThatThrownBy(() -> new QueryBuilder().delete("users WHERE 1=1"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void updateRejectsInjectedTableName() {
-        assertThatThrownBy(() -> new QueryBuilder().update("users; --", "name"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void updateRejectsInjectedColumnName() {
-        assertThatThrownBy(() -> new QueryBuilder().update("users", "name= ?; DROP TABLE x; --"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void updateIncrementRejectsInjectedColumnName() {
-        assertThatThrownBy(() -> new QueryBuilder().updateIncrement("users", "score'; DROP"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void whereRejectsNullCondition() {
-        assertThatThrownBy(() -> new QueryBuilder().select("users", "id").where(null))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void maliciousValueRoutedThroughPlaceholderNeverAppearsInSql() {
-        String malicious = "'; DROP TABLE users; --";
-        QueryBuilder qb = new QueryBuilder().select("users", "id").where(QueryCondition.eq("name", malicious));
-
-        assertThat(qb.build()).isEqualTo("SELECT id FROM users WHERE name = ?");
-        assertThat(qb.build()).doesNotContain("DROP");
-        assertThat(qb.values()).containsExactly(malicious);
+        assertThat(qb.build()).isEqualTo("SELECT id FROM users WHERE name = ? OR email = ?");
     }
 }

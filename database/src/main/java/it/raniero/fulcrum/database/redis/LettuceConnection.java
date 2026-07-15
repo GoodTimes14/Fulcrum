@@ -18,6 +18,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import it.raniero.fulcrum.database.redis.loqui.FulcrumLoqui;
 import lombok.Getter;
 
 @Getter
@@ -26,6 +28,7 @@ public class LettuceConnection implements IRedisConnection {
     private Logger logger;
     private final LettuceRedisCache cache;
     private final LettuceAsyncRedisCache asyncCache;
+    private final FulcrumLoqui loqui;
 
     private final Map<String, List<RedisMethod>> methodMap;
     private final DatabaseProperties properties;
@@ -41,6 +44,8 @@ public class LettuceConnection implements IRedisConnection {
 
         cache = new LettuceRedisCache(this);
         asyncCache = new LettuceAsyncRedisCache(this);
+        loqui = new FulcrumLoqui(this);
+
         connect(properties);
     }
 
@@ -120,6 +125,8 @@ public class LettuceConnection implements IRedisConnection {
             logger.log(Level.FINE, "Listeners not found");
             return;
         }
+
+
 
         for (RedisMethod redisMethod : methodMap.get(channel)) {
             try {

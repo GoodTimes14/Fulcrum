@@ -8,6 +8,7 @@ lettuce = "6.8.1.RELEASE"
 hikaricp = "6.2.1"
 bungeecord = "1.21-R0.4"
 velocity = "3.4.0-SNAPSHOT"
+jackson = "2.22.0"
 
 [libraries]
 shadow = { "group" = "com.gradleup.shadow", name = "shadow-gradle-plugin", version.ref = "shadow"}
@@ -19,3 +20,4 @@ velocity = {group = "com.velocitypowered", name = "velocity-api", version.ref = 
 lettuce = {group = "io.lettuce", name ="lettuce-core", version.ref = "lettuce"}
 hikaricp = {group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp"}
 bungeecord = {group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord"}
+jackson = {group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson"}

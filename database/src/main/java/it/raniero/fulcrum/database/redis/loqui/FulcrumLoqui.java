@@ -15,11 +15,15 @@ import lombok.RequiredArgsConstructor;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
 public class FulcrumLoqui implements ILoqui {
+
+
+    public static UUID SENDER_UUID = UUID.randomUUID();
 
     private final LettuceConnection connection;
 
@@ -53,7 +57,6 @@ public class FulcrumLoqui implements ILoqui {
 
     @Override
     public LoquiMessage decodeMessage(LoquiEnvelope envelope) {
-
 
         Class<? extends LoquiMessage> clazz = packetMap.get(envelope.packetId());
         if (clazz == null) return null;
@@ -100,7 +103,7 @@ public class FulcrumLoqui implements ILoqui {
                 throw new LoquiEncodeException("packetId not found for class: " + message.getClass().getSimpleName() + ", did you register it?");
             }
 
-            return new LoquiEnvelope(target, packetId, serialized);
+            return new LoquiEnvelope(target, SENDER_UUID.toString(), packetId, serialized);
 
         } catch (Exception e) {
             throw new LoquiEncodeException("Can't encode Loqui message: " + message.getClass().getSimpleName() + " " + e.getMessage());

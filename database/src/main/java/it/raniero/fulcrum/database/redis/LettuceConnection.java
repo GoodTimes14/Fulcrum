@@ -135,6 +135,15 @@ public class LettuceConnection implements IRedisConnection {
 
             try {
                 LoquiEnvelope envelope = LoquiEnvelope.deserialize(message);
+                //Remove echoing
+                if(envelope.from().equals(FulcrumLoqui.SENDER_UUID.toString())) {
+                    return;
+                }
+
+                if(!FulcrumLoqui.SENDER_UUID.toString().equals(envelope.target()) && !envelope.target().equals("BROADCAST")) {
+                    return;
+                }
+
                 messageObj = loqui.decodeMessage(envelope);
 
             } catch (LoquiDecoderException e) {

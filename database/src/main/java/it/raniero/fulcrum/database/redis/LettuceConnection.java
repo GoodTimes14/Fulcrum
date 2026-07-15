@@ -5,6 +5,9 @@ import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import it.raniero.fulcrum.api.database.loqui.exception.LoquiDecoderException;
+import it.raniero.fulcrum.api.database.loqui.message.LoquiEnvelope;
+import it.raniero.fulcrum.api.database.loqui.message.LoquiMessage;
 import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
 import it.raniero.fulcrum.api.database.redis.IRedisConnection;
 import it.raniero.fulcrum.api.database.redis.Listen;
@@ -126,11 +129,23 @@ public class LettuceConnection implements IRedisConnection {
             return;
         }
 
+        boolean loquiChannel = loqui.getChannels().contains(channel);
+        Object messageObj = message;
+        if (loquiChannel) {
 
+            try {
+                LoquiEnvelope envelope = LoquiEnvelope.deserialize(message);
+                messageObj = loqui.decodeMessage(envelope);
+
+            } catch (LoquiDecoderException e) {
+                logger.warning("Received malformed loqui message from a loqui-registered channel, ignoring...");
+                return;
+            }
+        }
 
         for (RedisMethod redisMethod : methodMap.get(channel)) {
             try {
-                redisMethod.getMethod().invoke(redisMethod.getHolder(), message);
+                redisMethod.getMethod().invoke(redisMethod.getHolder(), messageObj);
             } catch (ReflectiveOperationException e) {
                 logger.log(
                         Level.SEVERE,
@@ -145,9 +160,13 @@ public class LettuceConnection implements IRedisConnection {
         for (Method method : listener.getClass().getMethods()) {
             if (method.isAnnotationPresent(Listen.class)) {
                 Listen annotation = method.getAnnotation(Listen.class);
-                if (method.getParameterTypes().length != 1) {
+                boolean loquiChannel = loqui.getChannels().contains(annotation.channel());
+
+                if (method.getParameterTypes().length != 1 ||
+                        (loquiChannel && !method.getParameterTypes()[0].isInstance(LoquiMessage.class))) {
                     continue;
                 }
+
                 if (methodMap.containsKey(annotation.channel())) {
                     methodMap.get(annotation.channel()).add(new RedisMethod(listener, annotation, method));
                 } else {

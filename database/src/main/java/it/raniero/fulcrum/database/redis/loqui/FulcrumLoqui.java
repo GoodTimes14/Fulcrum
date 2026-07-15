@@ -1,7 +1,6 @@
 package it.raniero.fulcrum.database.redis.loqui;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.lettuce.core.RedisFuture;
 import it.raniero.fulcrum.api.database.loqui.ILoqui;
@@ -10,6 +9,7 @@ import it.raniero.fulcrum.api.database.loqui.exception.LoquiEncodeException;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiEnvelope;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiMessage;
 import it.raniero.fulcrum.database.redis.LettuceConnection;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Locale;
@@ -23,7 +23,8 @@ public class FulcrumLoqui implements ILoqui {
 
     private final LettuceConnection connection;
 
-    private final Set<String> loquiChannels = ConcurrentHashMap.newKeySet();
+    @Getter
+    private final Set<String> channels = ConcurrentHashMap.newKeySet();
 
     private final Map<String, Class<? extends LoquiMessage>> packetMap = new ConcurrentHashMap<>();
 
@@ -47,7 +48,7 @@ public class FulcrumLoqui implements ILoqui {
     @Override
     public void registerChannel(String channel) {
         connection.subscribe(channel);
-        loquiChannels.add(channel);
+        channels.add(channel);
     }
 
     @Override

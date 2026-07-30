@@ -5,6 +5,7 @@ import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import it.raniero.fulcrum.api.database.loqui.ILoqui;
 import it.raniero.fulcrum.api.database.loqui.exception.LoquiDecoderException;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiEnvelope;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiMessage;
@@ -17,12 +18,13 @@ import it.raniero.fulcrum.api.database.redis.utils.RedisMethod;
 import it.raniero.fulcrum.database.redis.cache.LettuceAsyncRedisCache;
 import it.raniero.fulcrum.database.redis.cache.LettuceRedisCache;
 import it.raniero.fulcrum.database.redis.listener.LettuceMessageListener;
+import it.raniero.fulcrum.database.redis.loqui.FulcrumLoqui;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import it.raniero.fulcrum.database.redis.loqui.FulcrumLoqui;
 import lombok.Getter;
 
 @Getter
@@ -43,7 +45,8 @@ public class LettuceConnection implements IRedisConnection {
     public LettuceConnection(Logger logger, DatabaseProperties properties) {
         this.logger = logger;
         this.properties = properties;
-        methodMap = new HashMap<>();
+        // Listeners are registered from the caller thread but read from the Redis I/O thread.
+        methodMap = new ConcurrentHashMap<>();
 
         cache = new LettuceRedisCache(this);
         asyncCache = new LettuceAsyncRedisCache(this);
@@ -119,43 +122,61 @@ public class LettuceConnection implements IRedisConnection {
 
         } catch (Exception exception) {
             logger.log(Level.SEVERE, "Error while subscribing", exception);
+            loqui.getChannels().remove(channel);
         }
     }
 
     @Override
     public void hopperMessage(String channel, String message) {
-        if (!methodMap.containsKey(channel)) {
+        List<RedisMethod> redisMethods = methodMap.get(channel);
+        if (redisMethods == null || redisMethods.isEmpty()) {
             logger.log(Level.FINE, "Listeners not found");
             return;
         }
 
         boolean loquiChannel = loqui.getChannels().contains(channel);
-        Object messageObj = message;
+
+        // Values a listener method can be fed with, in the order they are offered to it.
+        Object[] arguments;
         if (loquiChannel) {
 
             try {
                 LoquiEnvelope envelope = LoquiEnvelope.deserialize(message);
-                //Remove echoing
-                if(envelope.from().equals(FulcrumLoqui.SENDER_UUID.toString())) {
+                // Remove echoing
+                if (FulcrumLoqui.SENDER_UUID.toString().equals(envelope.from())) {
                     return;
                 }
 
-                if(!FulcrumLoqui.SENDER_UUID.toString().equals(envelope.target()) && !envelope.target().equals("BROADCAST")) {
+                if (!loqui.isTargeted(channel, envelope.target())) {
                     return;
                 }
 
-                messageObj = loqui.decodeMessage(envelope);
+                LoquiMessage decoded = loqui.decodeMessage(envelope);
+                if (decoded == null) {
+                    logger.log(Level.FINE, "No decoder registered for loqui packet id: " + envelope.packetId());
+                }
+
+                // A method asking for the envelope is served even when the payload can't be decoded.
+                arguments = new Object[] {decoded, envelope};
 
             } catch (LoquiDecoderException e) {
                 logger.warning("Received malformed loqui message from a loqui-registered channel, ignoring...");
                 return;
             }
+        } else {
+            arguments = new Object[] {message};
         }
 
-        for (RedisMethod redisMethod : methodMap.get(channel)) {
+        for (RedisMethod redisMethod : redisMethods) {
+            // A channel can carry several message types, only feed the ones the method actually accepts.
+            Object argument = argumentFor(redisMethod.getMethod().getParameterTypes()[0], arguments);
+            if (argument == null) {
+                continue;
+            }
+
             try {
-                redisMethod.getMethod().invoke(redisMethod.getHolder(), messageObj);
-            } catch (ReflectiveOperationException e) {
+                redisMethod.getMethod().invoke(redisMethod.getHolder(), argument);
+            } catch (ReflectiveOperationException | RuntimeException e) {
                 logger.log(
                         Level.SEVERE,
                         "Can't invoke method: " + redisMethod.getMethod().getName(),
@@ -164,25 +185,38 @@ public class LettuceConnection implements IRedisConnection {
         }
     }
 
+    private Object argumentFor(Class<?> parameterType, Object[] arguments) {
+        for (Object argument : arguments) {
+            if (parameterType.isInstance(argument)) {
+                return argument;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void registerListener(RedisListener listener) {
         for (Method method : listener.getClass().getMethods()) {
             if (method.isAnnotationPresent(Listen.class)) {
                 Listen annotation = method.getAnnotation(Listen.class);
-                boolean loquiChannel = loqui.getChannels().contains(annotation.channel());
 
-                if (method.getParameterTypes().length != 1 ||
-                        (loquiChannel && !method.getParameterTypes()[0].isInstance(LoquiMessage.class))) {
+                if (method.getParameterCount() != 1) {
+                    logger.warning("Skipping " + listener.getClass().getName() + "#" + method.getName()
+                            + ": @Listen methods must accept exactly one parameter");
                     continue;
                 }
 
-                if (methodMap.containsKey(annotation.channel())) {
-                    methodMap.get(annotation.channel()).add(new RedisMethod(listener, annotation, method));
-                } else {
-                    methodMap.put(
-                            annotation.channel(),
-                            new ArrayList<>(Collections.singletonList(new RedisMethod(listener, annotation, method))));
+                try {
+                    // Public methods of non-public listener classes are not reflectively callable otherwise.
+                    method.setAccessible(true);
+                } catch (RuntimeException ignored) {
+                    // Reported later if the invocation really fails.
                 }
+
+                methodMap
+                        .computeIfAbsent(annotation.channel(), key -> new CopyOnWriteArrayList<>())
+                        .add(new RedisMethod(listener, annotation, method));
             }
         }
     }
@@ -207,6 +241,11 @@ public class LettuceConnection implements IRedisConnection {
     @Override
     public IAsyncRedisCache asyncCache() {
         return asyncCache;
+    }
+
+    @Override
+    public ILoqui loqui() {
+        return loqui;
     }
 
     @Override

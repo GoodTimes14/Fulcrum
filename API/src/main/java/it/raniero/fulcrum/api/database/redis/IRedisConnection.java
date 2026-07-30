@@ -1,6 +1,7 @@
 package it.raniero.fulcrum.api.database.redis;
 
 import io.lettuce.core.RedisFuture;
+import it.raniero.fulcrum.api.database.loqui.ILoqui;
 import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
 import it.raniero.fulcrum.api.database.redis.cache.IAsyncRedisCache;
 import it.raniero.fulcrum.api.database.redis.cache.IRedisCache;
@@ -89,6 +90,13 @@ public interface IRedisConnection {
      * @return asynchronous Redis cache
      */
     IAsyncRedisCache asyncCache();
+
+    /**
+     * Gets the Loqui messaging API bound to this connection.
+     *
+     * @return Loqui messaging API
+     */
+    ILoqui loqui();
 
     /**
      * Closes the Redis connection.

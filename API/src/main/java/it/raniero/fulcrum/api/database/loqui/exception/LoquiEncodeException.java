@@ -4,4 +4,8 @@ public class LoquiEncodeException extends RuntimeException {
     public LoquiEncodeException(String message) {
         super(message);
     }
+
+    public LoquiEncodeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

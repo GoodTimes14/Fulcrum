@@ -15,9 +15,8 @@ class QueryBuilderTest {
 
     @Test
     void selectWithWhereUsesConditionSql() {
-        QueryBuilder qb = new QueryBuilder()
-                .select("users", "id", "name")
-                .where(new QueryCondition("id = ?").and("name LIKE ?"));
+        QueryBuilder qb =
+                new QueryBuilder().select("users", "id", "name").where(new QueryCondition("id = ?").and("name LIKE ?"));
 
         assertThat(qb.build()).isEqualTo("SELECT id,name FROM users WHERE id = ? AND name LIKE ?");
     }
@@ -56,9 +55,8 @@ class QueryBuilderTest {
 
     @Test
     void whereAcceptsOrConditions() {
-        QueryBuilder qb = new QueryBuilder()
-                .select("users", "id")
-                .where(new QueryCondition("name = ?").or("email = ?"));
+        QueryBuilder qb =
+                new QueryBuilder().select("users", "id").where(new QueryCondition("name = ?").or("email = ?"));
 
         assertThat(qb.build()).isEqualTo("SELECT id FROM users WHERE name = ? OR email = ?");
     }

@@ -4,12 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import io.lettuce.core.RedisFuture;
+import it.raniero.fulcrum.api.database.loqui.ILoqui;
+import it.raniero.fulcrum.api.database.loqui.message.LoquiContent;
+import it.raniero.fulcrum.api.database.loqui.message.LoquiEnvelope;
+import it.raniero.fulcrum.api.database.loqui.message.LoquiMessage;
 import it.raniero.fulcrum.api.database.properties.ConnectionType;
 import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
 import it.raniero.fulcrum.api.database.redis.Listen;
 import it.raniero.fulcrum.api.database.redis.RedisListener;
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -28,6 +33,8 @@ import org.testcontainers.utility.DockerImageName;
 class LettuceConnectionTest {
 
     private static final int REDIS_PORT = 6379;
+
+    private static final String LOQUI_CHANNEL = "loqui-channel";
 
     static boolean dockerAvailable() {
         if (Boolean.getBoolean("fulcrum.skipDockerTests")) {
@@ -160,12 +167,191 @@ class LettuceConnectionTest {
         assertThat(listener.received).isEmpty();
     }
 
+    @Test
+    void loquiMessageIsDecodedAndDispatchedToATypedListener() {
+        LoquiRecordingListener listener = registerLoquiListener();
+
+        connection.publish(LOQUI_CHANNEL, remoteEnvelope(ILoqui.BROADCAST, "hello"));
+
+        await().atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(50))
+                .until(() -> !listener.received.isEmpty());
+
+        assertThat(listener.received.peek().content).isEqualTo("hello");
+        assertThat(listener.rawReceived).isEmpty();
+    }
+
+    @Test
+    void loquiMessageAddressedToAnotherInstanceIsIgnored() {
+        LoquiRecordingListener listener = registerLoquiListener();
+
+        connection.publish(LOQUI_CHANNEL, remoteEnvelope(UUID.randomUUID().toString(), "hello"));
+
+        await().pollDelay(Duration.ofMillis(300)).atMost(Duration.ofSeconds(2)).until(() -> true);
+
+        assertThat(listener.received).isEmpty();
+    }
+
+    @Test
+    void ownLoquiMessagesAreNotEchoedBack() {
+        LoquiRecordingListener listener = registerLoquiListener();
+
+        connection.getLoqui().broadcastMessage(LOQUI_CHANNEL, new PingMessage("hello"));
+
+        await().pollDelay(Duration.ofMillis(300)).atMost(Duration.ofSeconds(2)).until(() -> true);
+
+        assertThat(listener.received).isEmpty();
+    }
+
+    @Test
+    void malformedLoquiMessageDoesNotReachListeners() {
+        LoquiRecordingListener listener = registerLoquiListener();
+
+        connection.publish(LOQUI_CHANNEL, "not-an-envelope");
+
+        await().pollDelay(Duration.ofMillis(300)).atMost(Duration.ofSeconds(2)).until(() -> true);
+
+        assertThat(listener.received).isEmpty();
+        assertThat(listener.rawReceived).isEmpty();
+    }
+
+    @Test
+    void loquiMessageAddressedToAJoinedMulticastGroupIsDispatched() {
+        LoquiRecordingListener listener = registerLoquiListener();
+        connection.getLoqui().registerMulticastGroup(LOQUI_CHANNEL, "lobbies");
+        connection.getLoqui().registerMulticastGroup(LOQUI_CHANNEL, "eu-west");
+
+        connection.publish(LOQUI_CHANNEL, remoteEnvelope("eu-west", "hello"));
+
+        await().atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(50))
+                .until(() -> !listener.received.isEmpty());
+
+        assertThat(listener.received.peek().content).isEqualTo("hello");
+    }
+
+    @Test
+    void loquiMessageAddressedToAGroupThatWasNotJoinedIsIgnored() {
+        LoquiRecordingListener listener = registerLoquiListener();
+        connection.getLoqui().registerMulticastGroup(LOQUI_CHANNEL, "lobbies");
+
+        connection.publish(LOQUI_CHANNEL, remoteEnvelope("minigames", "hello"));
+
+        await().pollDelay(Duration.ofMillis(300)).atMost(Duration.ofSeconds(2)).until(() -> true);
+
+        assertThat(listener.received).isEmpty();
+        assertThat(listener.envelopes).isEmpty();
+    }
+
+    @Test
+    void multicastGroupsJoinedOnAnotherChannelDoNotApply() {
+        LoquiRecordingListener listener = registerLoquiListener();
+        connection.getLoqui().registerMulticastGroup("another-channel", "lobbies");
+
+        connection.publish(LOQUI_CHANNEL, remoteEnvelope("lobbies", "hello"));
+
+        await().pollDelay(Duration.ofMillis(300)).atMost(Duration.ofSeconds(2)).until(() -> true);
+
+        assertThat(listener.received).isEmpty();
+    }
+
+    @Test
+    void listenersCanTakeTheEnvelopeToReadItsMetadata() {
+        LoquiRecordingListener listener = registerLoquiListener();
+        connection.getLoqui().registerMulticastGroup(LOQUI_CHANNEL, "lobbies");
+
+        String serialized = remoteEnvelope("lobbies", "hello");
+        connection.publish(LOQUI_CHANNEL, serialized);
+
+        await().atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(50))
+                .until(() -> !listener.envelopes.isEmpty());
+
+        LoquiEnvelope envelope = listener.envelopes.peek();
+        assertThat(envelope.target()).isEqualTo("lobbies");
+        assertThat(envelope.packetId()).isEqualTo("ping_message");
+        assertThat(envelope.from())
+                .isEqualTo(LoquiEnvelope.deserialize(serialized).from());
+        assertThat(listener.rawReceived).isEmpty();
+    }
+
+    @Test
+    void envelopeListenersAreServedEvenWithoutADecoder() {
+        LoquiRecordingListener listener = registerLoquiListener();
+
+        connection.publish(LOQUI_CHANNEL, remoteEnvelope(ILoqui.BROADCAST, "unknown_message", "hello"));
+
+        await().atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(50))
+                .until(() -> !listener.envelopes.isEmpty());
+
+        assertThat(listener.envelopes.peek().packetId()).isEqualTo("unknown_message");
+        assertThat(listener.received).isEmpty();
+    }
+
+    private LoquiRecordingListener registerLoquiListener() {
+        LoquiRecordingListener listener = new LoquiRecordingListener();
+        connection.registerListener(listener);
+        connection.getLoqui().registerMessageType(PingMessage.class, PingMessage::new);
+        connection.getLoqui().registerChannel(LOQUI_CHANNEL);
+
+        return listener;
+    }
+
+    private String remoteEnvelope(String target, String content) {
+        return remoteEnvelope(target, "ping_message", content);
+    }
+
+    private String remoteEnvelope(String target, String packetId, String content) {
+        return new LoquiEnvelope(target, UUID.randomUUID().toString(), packetId, "{\"content\":\"" + content + "\"}")
+                .serialize();
+    }
+
     static class RecordingListener implements RedisListener {
         final LinkedBlockingQueue<String> received = new LinkedBlockingQueue<>();
 
         @Listen(channel = "test-channel")
         public void onTest(String message) {
             received.add(message);
+        }
+    }
+
+    static class LoquiRecordingListener implements RedisListener {
+        final LinkedBlockingQueue<PingMessage> received = new LinkedBlockingQueue<>();
+        final LinkedBlockingQueue<LoquiEnvelope> envelopes = new LinkedBlockingQueue<>();
+        final LinkedBlockingQueue<String> rawReceived = new LinkedBlockingQueue<>();
+
+        @Listen(channel = LOQUI_CHANNEL)
+        public void onPing(PingMessage message) {
+            received.add(message);
+        }
+
+        @Listen(channel = LOQUI_CHANNEL)
+        public void onEnvelope(LoquiEnvelope envelope) {
+            envelopes.add(envelope);
+        }
+
+        @Listen(channel = LOQUI_CHANNEL)
+        public void onRaw(String message) {
+            rawReceived.add(message);
+        }
+    }
+
+    static class PingMessage extends LoquiMessage {
+
+        String content;
+
+        PingMessage(String content) {
+            this.content = content;
+        }
+
+        PingMessage() {
+            super();
+        }
+
+        @Override
+        public void deserialize(LoquiContent content) {
+            this.content = content.getString("content");
         }
     }
 }

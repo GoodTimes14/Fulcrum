@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.RedisFuture;
 import it.raniero.fulcrum.api.database.loqui.ILoqui;
+import it.raniero.fulcrum.api.database.loqui.discovery.LoquiDiscoveryOptions;
 import it.raniero.fulcrum.api.database.loqui.exception.LoquiDecoderException;
 import it.raniero.fulcrum.api.database.loqui.exception.LoquiEncodeException;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiContent;
@@ -41,6 +42,8 @@ public class FulcrumLoqui implements ILoqui {
     private final Map<String, Supplier<LoquiMessage>> decoderMap = new ConcurrentHashMap<>();
 
     private final Map<String, String> classCache = new ConcurrentHashMap<>();
+
+    private LoquiDiscoveryOptions discoveryOptions = LoquiDiscoveryOptions.defaultOptions();
 
     private final Map<String, Set<String>> multicastGroups = new ConcurrentHashMap<>();
 
@@ -109,6 +112,16 @@ public class FulcrumLoqui implements ILoqui {
         Set<String> groups = multicastGroups.get(channel);
 
         return groups == null ? Set.of() : Collections.unmodifiableSet(groups);
+    }
+
+    @Override
+    public void setDiscoveryOptions(LoquiDiscoveryOptions options) {
+        this.discoveryOptions = options;
+    }
+
+    @Override
+    public LoquiDiscoveryOptions getDiscoveryOptions() {
+        return this.discoveryOptions;
     }
 
     @Override

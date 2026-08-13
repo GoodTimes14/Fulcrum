@@ -3,6 +3,8 @@ package it.raniero.fulcrum.api.database.loqui;
 import io.lettuce.core.RedisFuture;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiEnvelope;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiMessage;
+import it.raniero.fulcrum.api.database.loqui.discovery.LoquiDiscoveryOptions;
+
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -20,7 +22,7 @@ public interface ILoqui {
      * Registers the decoder used to rebuild a message type received from a Loqui channel.
      *
      * @param messageClass message type to register
-     * @param decoder      builds the message back from its raw fields
+     * @param supplier     Supplier of the registering message type
      */
     void registerMessageType(Class<? extends LoquiMessage> messageClass, Supplier<LoquiMessage> supplier);
 
@@ -59,6 +61,24 @@ public interface ILoqui {
      * @return joined multicast groups, empty when none was registered for the channel
      */
     Set<String> getMulticastGroups(String channel);
+
+
+    /**
+     * Sets the discovery options for loqui, these options coordinate both the advertising and discovery
+     * process.
+     *
+     * @param options The discovery options Loqui should follow
+     */
+    void setDiscoveryOptions(LoquiDiscoveryOptions options);
+
+
+
+    /**
+     * Gets the current discovery options
+     *
+     * @return The current discovery options
+     */
+    LoquiDiscoveryOptions getDiscoveryOptions();
 
     /**
      * Checks whether a message target must be handled by this instance on a channel.

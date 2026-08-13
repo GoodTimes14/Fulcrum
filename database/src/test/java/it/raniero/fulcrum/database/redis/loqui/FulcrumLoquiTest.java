@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import it.raniero.fulcrum.api.database.loqui.ILoqui;
+import it.raniero.fulcrum.api.database.loqui.discovery.LoquiDiscoveryOptions;
 import it.raniero.fulcrum.api.database.loqui.exception.LoquiDecoderException;
 import it.raniero.fulcrum.api.database.loqui.exception.LoquiEncodeException;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiContent;
@@ -49,6 +50,20 @@ class FulcrumLoquiTest {
 
         assertThat(loqui.createEnvelope("target", new PingMessage("hi", 1)).from())
                 .isEqualTo(FulcrumLoqui.SENDER_UUID.toString());
+        assertThat(loqui.getSenderId()).isEqualTo(FulcrumLoqui.SENDER_UUID);
+    }
+
+    @Test
+    void discoveryOptionsAreValidatedBeforeBeingApplied() {
+        LoquiDiscoveryOptions valid = new LoquiDiscoveryOptions(10, 20, true);
+
+        loqui.discovery().setOptions(valid);
+
+        assertThat(loqui.discovery().getOptions()).isEqualTo(valid);
+        assertThat(loqui.discovery().getSenderId()).isEqualTo(loqui.getSenderId());
+        assertThatThrownBy(() -> loqui.discovery().setOptions(new LoquiDiscoveryOptions(10, 19, false)))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(loqui.discovery().getOptions()).isEqualTo(valid);
     }
 
     @Test

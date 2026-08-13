@@ -86,4 +86,31 @@ public interface IRedisCache {
      * @param str string value
      */
     void set(String key, String str);
+
+    /**
+     * Sets a string value with an expiration.
+     *
+     * <p>The default implementation is provided for compatibility with cache implementations that only expose
+     * separate set and expire operations. Implementations should override this method when the backing store can
+     * apply the value and expiration atomically.
+     *
+     * @param key Redis key
+     * @param str string value
+     * @param expirationSeconds expiration time in seconds
+     */
+    default void set(String key, String str, long expirationSeconds) {
+        if (expirationSeconds <= 0) {
+            throw new IllegalArgumentException("Redis expiration must be positive");
+        }
+
+        final int legacyExpiration;
+        try {
+            legacyExpiration = Math.toIntExact(expirationSeconds);
+        } catch (ArithmeticException e) {
+            throw new IllegalArgumentException("Redis expiration exceeds the supported range", e);
+        }
+
+        set(key, str);
+        initExpire(key, legacyExpiration);
+    }
 }

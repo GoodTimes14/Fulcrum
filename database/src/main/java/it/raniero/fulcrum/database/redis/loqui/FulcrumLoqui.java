@@ -10,29 +10,31 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.RedisFuture;
 import it.raniero.fulcrum.api.database.loqui.ILoqui;
-import it.raniero.fulcrum.api.database.loqui.discovery.LoquiDiscoveryOptions;
+import it.raniero.fulcrum.api.database.loqui.discovery.ILoquiDiscovery;
 import it.raniero.fulcrum.api.database.loqui.exception.LoquiDecoderException;
 import it.raniero.fulcrum.api.database.loqui.exception.LoquiEncodeException;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiContent;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiEnvelope;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiMessage;
 import it.raniero.fulcrum.database.redis.LettuceConnection;
+import it.raniero.fulcrum.database.redis.loqui.discovery.FulcrumLoquiDiscovery;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class FulcrumLoqui implements ILoqui {
 
     public static final UUID SENDER_UUID = UUID.randomUUID();
 
     private final LettuceConnection connection;
+    private final UUID senderId;
+    private final ILoquiDiscovery discovery;
 
     @Getter
     private final Set<String> channels = ConcurrentHashMap.newKeySet();
@@ -42,8 +44,6 @@ public class FulcrumLoqui implements ILoqui {
     private final Map<String, Supplier<LoquiMessage>> decoderMap = new ConcurrentHashMap<>();
 
     private final Map<String, String> classCache = new ConcurrentHashMap<>();
-
-    private LoquiDiscoveryOptions discoveryOptions = LoquiDiscoveryOptions.defaultOptions();
 
     private final Map<String, Set<String>> multicastGroups = new ConcurrentHashMap<>();
 
@@ -57,6 +57,27 @@ public class FulcrumLoqui implements ILoqui {
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
+
+    public FulcrumLoqui(LettuceConnection connection) {
+        this(connection, SENDER_UUID);
+    }
+
+    FulcrumLoqui(LettuceConnection connection, UUID senderId) {
+        this.connection = connection;
+        this.senderId = Objects.requireNonNull(senderId, "Loqui sender id can't be null");
+        this.discovery = new FulcrumLoquiDiscovery(
+                connection, this.senderId, connection == null ? null : connection.getLogger());
+    }
+
+    @Override
+    public UUID getSenderId() {
+        return senderId;
+    }
+
+    @Override
+    public ILoquiDiscovery discovery() {
+        return discovery;
+    }
 
     @Override
     public void registerMessageType(Class<? extends LoquiMessage> messageClass, Supplier<LoquiMessage> supplier) {
@@ -115,21 +136,11 @@ public class FulcrumLoqui implements ILoqui {
     }
 
     @Override
-    public void setDiscoveryOptions(LoquiDiscoveryOptions options) {
-        this.discoveryOptions = options;
-    }
-
-    @Override
-    public LoquiDiscoveryOptions getDiscoveryOptions() {
-        return this.discoveryOptions;
-    }
-
-    @Override
     public boolean isTargeted(String channel, String target) {
         if (target == null) return false;
 
         return BROADCAST.equals(target)
-                || SENDER_UUID.toString().equals(target)
+                || senderId.toString().equals(target)
                 || getMulticastGroups(channel).contains(target);
     }
 
@@ -211,7 +222,11 @@ public class FulcrumLoqui implements ILoqui {
                     e);
         }
 
-        return new LoquiEnvelope(target, SENDER_UUID.toString(), packetId, serialized);
+        return new LoquiEnvelope(target, senderId.toString(), packetId, serialized);
+    }
+
+    public void close() {
+        discovery.close();
     }
 
     private String sanitizePacketId(String packetId) {

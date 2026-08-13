@@ -5,6 +5,8 @@ import static org.awaitility.Awaitility.await;
 
 import io.lettuce.core.RedisFuture;
 import it.raniero.fulcrum.api.database.loqui.ILoqui;
+import it.raniero.fulcrum.api.database.loqui.discovery.LoquiDiscoveryData;
+import it.raniero.fulcrum.api.database.loqui.discovery.LoquiDiscoveryOptions;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiContent;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiEnvelope;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiMessage;
@@ -12,6 +14,7 @@ import it.raniero.fulcrum.api.database.properties.ConnectionType;
 import it.raniero.fulcrum.api.database.properties.DatabaseProperties;
 import it.raniero.fulcrum.api.database.redis.Listen;
 import it.raniero.fulcrum.api.database.redis.RedisListener;
+import it.raniero.fulcrum.database.redis.loqui.discovery.RedisLoquiDiscoveryStore;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
@@ -135,6 +138,109 @@ class LettuceConnectionTest {
 
         RedisFuture<String> getFuture = connection.asyncCache().get("async-key");
         assertThat(getFuture.get(5, TimeUnit.SECONDS)).isEqualTo("async-value");
+    }
+
+    @Test
+    void loquiAdvertisementCanBeDiscoveredAndReleased() {
+        String name = "lobby-" + UUID.randomUUID();
+
+        assertThat(connection.getLoqui().discovery().advertise(name)).isTrue();
+
+        LoquiDiscoveryData discovered =
+                connection.getLoqui().discovery().discover(name).orElseThrow();
+        assertThat(discovered.senderId()).isEqualTo(connection.getLoqui().getSenderId());
+        assertThat(connection.cache().fetch(discoveryKey(name))).isEqualTo(discovered.serialize());
+        assertThat(connection.getInteractionConnection().sync().ttl(discoveryKey(name)))
+                .isPositive()
+                .isLessThanOrEqualTo(discovered.updateTTL());
+        assertThat(connection.getLoqui().discovery().discoverAll()).containsEntry(name, discovered);
+        assertThat(connection.getLoqui().discovery().getAdvertisements()).containsExactly(name);
+
+        assertThat(connection.getLoqui().discovery().stopAdvertising(name)).isTrue();
+        assertThat(connection.getLoqui().discovery().discover(name)).isEmpty();
+    }
+
+    @Test
+    void liveForeignAdvertisementRequiresAggressiveRetake() {
+        String name = "proxy-" + UUID.randomUUID();
+        UUID foreignSender = UUID.randomUUID();
+        putDiscoveryRecord(name, foreignSender, 30);
+
+        assertThat(connection.getLoqui().discovery().advertise(name)).isFalse();
+        assertThat(connection.getLoqui().discovery().discover(name))
+                .get()
+                .extracting(LoquiDiscoveryData::senderId)
+                .isEqualTo(foreignSender);
+
+        connection.getLoqui().discovery().setOptions(new LoquiDiscoveryOptions(10, 30, true));
+        assertThat(connection.getLoqui().discovery().advertise(name)).isTrue();
+        assertThat(connection.getLoqui().discovery().discover(name))
+                .get()
+                .extracting(LoquiDiscoveryData::senderId)
+                .isEqualTo(connection.getLoqui().getSenderId());
+    }
+
+    @Test
+    void formerOwnerCannotDeleteAReplacementAdvertisement() {
+        String name = "gateway-" + UUID.randomUUID();
+        UUID replacement = UUID.randomUUID();
+        assertThat(connection.getLoqui().discovery().advertise(name)).isTrue();
+
+        LoquiDiscoveryData replacementData = LoquiDiscoveryData.current(replacement, System.currentTimeMillis(), 30);
+        connection.cache().set(discoveryKey(name), replacementData.serialize(), replacementData.updateTTL());
+
+        assertThat(connection.getLoqui().discovery().stopAdvertising(name)).isFalse();
+        assertThat(LoquiDiscoveryData.deserialize(connection.cache().fetch(discoveryKey(name)))
+                        .senderId())
+                .isEqualTo(replacement);
+    }
+
+    @Test
+    void malformedDiscoveryKeysAreIgnored() {
+        String name = "malformed-" + UUID.randomUUID();
+        connection.cache().set(discoveryKey(name), "not-a-discovery-record", 30);
+
+        assertThat(connection.getLoqui().discovery().discover(name)).isEmpty();
+        assertThat(connection.getLoqui().discovery().discoverAll()).doesNotContainKey(name);
+    }
+
+    @Test
+    void unrefreshedDiscoveryAdvertisementExpiresFromRedis() {
+        String name = "expired-" + UUID.randomUUID();
+        RedisLoquiDiscoveryStore store = new RedisLoquiDiscoveryStore(connection);
+        store.set(name, LoquiDiscoveryData.current(UUID.randomUUID(), System.currentTimeMillis(), 1));
+
+        assertThat(connection.getInteractionConnection().sync().ttl(discoveryKey(name)))
+                .isPositive();
+        await().atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(100))
+                .until(() -> connection.getInteractionConnection().sync().exists(discoveryKey(name)) == 0);
+    }
+
+    @Test
+    void discoveryHeartbeatKeepsTheRedisLeaseAlive() {
+        String name = "heartbeat-" + UUID.randomUUID();
+        connection.getLoqui().discovery().setOptions(new LoquiDiscoveryOptions(1, 2, false));
+        connection.getLoqui().discovery().advertise(name);
+
+        await().pollDelay(Duration.ofMillis(2_500))
+                .atMost(Duration.ofSeconds(4))
+                .untilAsserted(() -> {
+                    assertThat(connection.getLoqui().discovery().discover(name)).isPresent();
+                    assertThat(connection.getInteractionConnection().sync().ttl(discoveryKey(name)))
+                            .isPositive();
+                });
+    }
+
+    @Test
+    void closingLoquiReleasesItsAdvertisements() {
+        String name = "shutdown-" + UUID.randomUUID();
+        connection.getLoqui().discovery().advertise(name);
+
+        connection.getLoqui().discovery().close();
+
+        assertThat(connection.getInteractionConnection().sync().exists(discoveryKey(name)))
+                .isZero();
     }
 
     @Test
@@ -305,6 +411,15 @@ class LettuceConnectionTest {
     private String remoteEnvelope(String target, String packetId, String content) {
         return new LoquiEnvelope(target, UUID.randomUUID().toString(), packetId, "{\"content\":\"" + content + "\"}")
                 .serialize();
+    }
+
+    private void putDiscoveryRecord(String name, UUID senderId, long ttl) {
+        LoquiDiscoveryData data = LoquiDiscoveryData.current(senderId, System.currentTimeMillis(), ttl);
+        connection.cache().set(discoveryKey(name), data.serialize(), data.updateTTL());
+    }
+
+    private String discoveryKey(String name) {
+        return "fulcrum:loqui:discovery:" + name;
     }
 
     static class RecordingListener implements RedisListener {

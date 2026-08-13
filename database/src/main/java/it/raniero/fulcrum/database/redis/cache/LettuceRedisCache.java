@@ -1,5 +1,6 @@
 package it.raniero.fulcrum.database.redis.cache;
 
+import io.lettuce.core.SetArgs;
 import it.raniero.fulcrum.api.database.redis.cache.IRedisCache;
 import it.raniero.fulcrum.database.redis.LettuceConnection;
 import java.util.List;
@@ -64,5 +65,14 @@ public class LettuceRedisCache implements IRedisCache {
     @Override
     public void set(String key, String str) {
         lettuceConnection.getInteractionConnection().sync().set(key, str);
+    }
+
+    @Override
+    public void set(String key, String str, long expirationSeconds) {
+        if (expirationSeconds <= 0) {
+            throw new IllegalArgumentException("Redis expiration must be positive");
+        }
+
+        lettuceConnection.getInteractionConnection().sync().set(key, str, SetArgs.Builder.ex(expirationSeconds));
     }
 }

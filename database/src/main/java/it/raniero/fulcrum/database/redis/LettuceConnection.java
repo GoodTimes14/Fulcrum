@@ -143,7 +143,7 @@ public class LettuceConnection implements IRedisConnection {
             try {
                 LoquiEnvelope envelope = LoquiEnvelope.deserialize(message);
                 // Remove echoing
-                if (FulcrumLoqui.SENDER_UUID.toString().equals(envelope.from())) {
+                if (loqui.getSenderId().toString().equals(envelope.from())) {
                     return;
                 }
 
@@ -250,6 +250,7 @@ public class LettuceConnection implements IRedisConnection {
 
     @Override
     public void close() {
+        loqui.close();
         subscribeConnection.close();
         interactionConnection.close();
         client.shutdown();

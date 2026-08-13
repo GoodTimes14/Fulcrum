@@ -159,7 +159,150 @@ Listener methods must:
 
 - Be public.
 - Be annotated with `@Listen(channel = "...")`.
-- Accept exactly one `String` argument.
+- Accept exactly one argument. Ordinary channels supply a `String`; Loqui channels can supply a registered
+  `LoquiMessage` subtype or `LoquiEnvelope`.
+
+## Loqui Messaging and Discovery
+
+Loqui adds typed sender/receiver messages and named endpoint discovery on top of the Redis connection.
+
+### Receive a Decoded Message
+
+Use a typed listener when the receiver only needs the decoded message content. A message is a small data holder that
+rebuilds itself from the received content:
+
+```java
+public final class PlayerLookupMessage extends LoquiMessage {
+
+    private UUID playerId;
+
+    public PlayerLookupMessage(UUID playerId) {
+        this.playerId = playerId;
+    }
+
+    public PlayerLookupMessage() {
+        // Used by the registered receiver-side supplier.
+    }
+
+    public UUID playerId() {
+        return playerId;
+    }
+
+    @Override
+    public void deserialize(LoquiContent content) {
+        playerId = UUID.fromString(content.getString("playerId"));
+    }
+}
+```
+
+A Redis listener can receive that concrete Loqui message type directly:
+
+```java
+public final class PlayerLookupListener implements RedisListener {
+
+    private final Logger logger;
+
+    public PlayerLookupListener(Logger logger) {
+        this.logger = logger;
+    }
+
+    @Listen(channel = "network:requests")
+    public void onPlayerLookup(PlayerLookupMessage message) {
+        logger.info("Player lookup requested for " + message.playerId());
+    }
+}
+```
+
+Register the decoder and listener before marking and subscribing to the Pub/Sub channel as a Loqui channel:
+
+```java
+ILoqui loqui = redis.loqui();
+loqui.registerMessageType(PlayerLookupMessage.class, PlayerLookupMessage::new);
+redis.registerListener(new PlayerLookupListener(logger));
+loqui.registerChannel("network:requests");
+```
+
+### Receive an Envelope
+
+Use an envelope listener when the receiver needs routing metadata such as the sender, target, or packet id:
+
+```java
+public final class LoquiEnvelopeListener implements RedisListener {
+
+    private final Logger logger;
+
+    public LoquiEnvelopeListener(Logger logger) {
+        this.logger = logger;
+    }
+
+    @Listen(channel = "network:requests")
+    public void onEnvelope(LoquiEnvelope envelope) {
+        logger.info("Received " + envelope.packetId()
+                + " from " + envelope.from()
+                + " for " + envelope.target());
+    }
+}
+```
+
+An envelope-only listener does not require a message decoder:
+
+```java
+ILoqui loqui = redis.loqui();
+redis.registerListener(new LoquiEnvelopeListener(logger));
+loqui.registerChannel("network:requests");
+```
+
+The envelope exposes the original JSON body through `serializedMessage()`. A valid envelope can therefore reach an
+envelope listener even when its packet type has not been registered. If typed and envelope listeners are both
+registered for the channel, both receive each matching message.
+
+Both listener styles run only for envelopes addressed to this Loqui instance, to `BROADCAST`, or to a multicast
+group the instance joined on that channel. Messages sent by the same instance are ignored to prevent echoes.
+
+Messages can target every listener, a multicast group, or one discovered sender:
+
+```java
+loqui.broadcastMessage("network:requests", new PlayerLookupMessage(playerId));
+
+loqui.registerMulticastGroup("network:requests", "lobbies");
+loqui.sendMessage("network:requests", "lobbies", new PlayerLookupMessage(playerId));
+```
+
+Advertise a stable logical name when other processes need to address this instance directly:
+
+```java
+ILoquiDiscovery discovery = loqui.discovery();
+discovery.setOptions(new LoquiDiscoveryOptions(
+        15,    // heartbeat interval, seconds
+        45,    // lease TTL, seconds
+        false  // do not steal a live name
+));
+
+if (!discovery.advertise("lobby-eu-1")) {
+    throw new IllegalStateException("Another Loqui instance owns lobby-eu-1");
+}
+```
+
+Discovery stores one serialized value per server using ordinary Redis `GET`, `SET ... EX`, `KEYS`, and `DEL`
+commands. Each `SET` atomically applies the configured lease TTL to the key, and every heartbeat refreshes both its
+value and expiration. If an instance dies and stops sending heartbeats, Redis removes its advertisement
+automatically. The timestamp in the value remains a second safeguard: stale records are ignored even before Redis
+removes them. A consumer can resolve the logical name and use its sender id as the target:
+
+```java
+discovery.discover("lobby-eu-1").ifPresent(endpoint ->
+        loqui.sendMessage(
+                "network:requests",
+                endpoint.senderId().toString(),
+                new PlayerLookupMessage(playerId)));
+```
+
+`discoverAll()` returns an immutable snapshot of every live, supported discovery record. Missing, stale, malformed,
+or newer-protocol records are ignored. Keep `aggressiveRetake` disabled unless forced takeover is intentional: when
+enabled, an advertiser may replace an unexpired lease owned by another sender.
+
+Call `stopAdvertising(name)` to release one name. Closing the Redis connection cancels the heartbeat and checks the
+stored sender before removing each local advertisement.
 
 ## Practical Message Format
 
@@ -215,4 +358,3 @@ To close a single Redis connection manually:
 ```java
 fulcrum.getDatabase().unregisterConnection(ConnectionType.REDIS, "cache");
 ```
-

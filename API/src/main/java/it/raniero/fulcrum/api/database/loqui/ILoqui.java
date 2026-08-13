@@ -1,11 +1,11 @@
 package it.raniero.fulcrum.api.database.loqui;
 
 import io.lettuce.core.RedisFuture;
+import it.raniero.fulcrum.api.database.loqui.discovery.ILoquiDiscovery;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiEnvelope;
 import it.raniero.fulcrum.api.database.loqui.message.LoquiMessage;
-import it.raniero.fulcrum.api.database.loqui.discovery.LoquiDiscoveryOptions;
-
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -17,6 +17,20 @@ public interface ILoqui {
      * Target accepted by every listening instance.
      */
     String BROADCAST = "BROADCAST";
+
+    /**
+     * Gets the stable sender id used by this Loqui instance.
+     *
+     * @return local sender id
+     */
+    UUID getSenderId();
+
+    /**
+     * Gets the endpoint discovery API bound to this Loqui instance.
+     *
+     * @return Loqui discovery API
+     */
+    ILoquiDiscovery discovery();
 
     /**
      * Registers the decoder used to rebuild a message type received from a Loqui channel.
@@ -61,24 +75,6 @@ public interface ILoqui {
      * @return joined multicast groups, empty when none was registered for the channel
      */
     Set<String> getMulticastGroups(String channel);
-
-
-    /**
-     * Sets the discovery options for loqui, these options coordinate both the advertising and discovery
-     * process.
-     *
-     * @param options The discovery options Loqui should follow
-     */
-    void setDiscoveryOptions(LoquiDiscoveryOptions options);
-
-
-
-    /**
-     * Gets the current discovery options
-     *
-     * @return The current discovery options
-     */
-    LoquiDiscoveryOptions getDiscoveryOptions();
 
     /**
      * Checks whether a message target must be handled by this instance on a channel.

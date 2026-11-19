@@ -4,6 +4,7 @@ import it.raniero.fulcrum.api.command.context.ICommandContext;
 import it.raniero.fulcrum.api.command.context.source.FulcrumSource;
 import it.raniero.fulcrum.api.command.context.source.SourceType;
 import it.raniero.fulcrum.api.command.scheme.argument.Argument;
+import it.raniero.fulcrum.api.command.scheme.help.HelpStyle;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,9 @@ public class CommandScheme {
     private final String argumentHoverColor;
 
     private final String descriptionColor;
+
+    @Builder.Default
+    private final HelpStyle helpStyle = HelpStyle.LIST;
 
     private CommandScheme parent;
 

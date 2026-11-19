@@ -1,5 +1,6 @@
 package it.raniero.fulcrum.command;
 
+import ch.jalu.configme.properties.Property;
 import it.raniero.fulcrum.Fulcrum;
 import it.raniero.fulcrum.api.command.IFulcrumCommand;
 import it.raniero.fulcrum.api.command.context.result.ContextResult;
@@ -9,7 +10,9 @@ import it.raniero.fulcrum.api.command.scheme.CommandScheme;
 import it.raniero.fulcrum.api.command.scheme.argument.Argument;
 import it.raniero.fulcrum.api.command.scheme.argument.impl.GroupedArgument;
 import it.raniero.fulcrum.api.command.scheme.argument.impl.NormalArgument;
+import it.raniero.fulcrum.api.command.scheme.help.HelpStyle;
 import it.raniero.fulcrum.api.server.FulcrumServer;
+import it.raniero.fulcrum.api.utils.CommandTreeUtils;
 import it.raniero.fulcrum.api.utils.CommandUtils;
 import it.raniero.fulcrum.api.utils.MessageUtils;
 import it.raniero.fulcrum.command.context.CommandContext;
@@ -18,9 +21,12 @@ import it.raniero.fulcrum.config.holder.FulcrumMessagesHolder;
 import java.util.*;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 
 public abstract class FulcrumCommand implements IFulcrumCommand {
+
+    private static final int TREE_HELP_MAX_LINES = 16;
 
     @Getter
     private final Fulcrum fulcrum;
@@ -262,6 +268,10 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
                                 : FulcrumMessagesHolder.COMMAND_HELP_PREAMBLE);
 
         CommandScheme parent = getSchemeParent(scheme);
+        if (parent.helpStyle() == HelpStyle.TREE) {
+            sendCommandTree(source, label, scheme, parent);
+            return;
+        }
 
         if (sendPreamble) {
             String labelColor = parent.labelColor() == null
@@ -363,7 +373,11 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
 
             String description = argument.description() == null ? "N/D" : argument.description();
 
-            Component argumentComponent = MessageUtils.convertLegacyText(argumentColor + " " + argument.display())
+            String display = parent.helpStyle() == HelpStyle.TREE
+                    ? CommandTreeUtils.getTreeDisplay(argument)
+                    : argument.display();
+
+            Component argumentComponent = MessageUtils.convertLegacyText(argumentColor + " " + display)
                     .hoverEvent(HoverEvent.hoverEvent(
                             HoverEvent.Action.SHOW_TEXT, MessageUtils.convertLegacyText(hoverColor + description)));
 
@@ -383,5 +397,79 @@ public abstract class FulcrumCommand implements IFulcrumCommand {
         String description = scheme.description() == null ? "N/D" : scheme.description();
 
         return component.append(MessageUtils.convertLegacyText("&8 - " + descriptionColor + description));
+    }
+
+    private void sendCommandTree(FulcrumSource source, String label, CommandScheme scheme, CommandScheme parent) {
+        String command = CommandTreeUtils.getCommandPath(label, scheme);
+
+        source.sendMessage(fulcrum.getMainConfig()
+                .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.COMMAND_HELP_TREE_HEADER)
+                .replace("%label_color%", getColor(parent.labelColor(), FulcrumMessagesHolder.DEFAULT_LABEL_COLOR))
+                .replace("%command%", command));
+
+        // Players see the deepest tree that fits the chat, the console sees all of it
+        boolean console = source.sourceType() == SourceType.CONSOLE;
+        int depth = CommandTreeUtils.getTreeDepth(source, scheme, console ? Integer.MAX_VALUE : TREE_HELP_MAX_LINES);
+
+        sendTreeLines(source, command, scheme, parent, depth, " ");
+
+        if (!console) {
+            source.sendMessage(fulcrum.getMainConfig()
+                    .get(FulcrumMessagesHolder.class, FulcrumMessagesHolder.COMMAND_HELP_TREE_FOOTER));
+        }
+    }
+
+    private void sendTreeLines(
+            FulcrumSource source,
+            String command,
+            CommandScheme scheme,
+            CommandScheme parent,
+            int depth,
+            String indent) {
+
+        String labelColor = getColor(parent.labelColor(), FulcrumMessagesHolder.DEFAULT_LABEL_COLOR);
+        String subLabelColor = getColor(parent.labelColor(), FulcrumMessagesHolder.DEFAULT_SUBLABEL_COLOR);
+        String descriptionColor = getColor(parent.descriptionColor(), FulcrumMessagesHolder.DEFAULT_DESCRIPTION_COLOR);
+
+        List<CommandScheme> subSchemes = CommandTreeUtils.getTreeSubCommands(source, scheme);
+        for (int i = 0; i < subSchemes.size(); i++) {
+
+            CommandScheme subScheme = subSchemes.get(i);
+            boolean last = i == subSchemes.size() - 1;
+            boolean group = !subScheme.subCommands().isEmpty();
+            String subCommand = command + " " + subScheme.label();
+            String description = subScheme.description() == null ? "N/D" : subScheme.description();
+            String defaultColor = group ? labelColor : subLabelColor;
+            String color = subScheme.labelColor() == null ? defaultColor : subScheme.labelColor();
+            String count =
+                    group && depth <= 1 ? "&8 (" + CommandTreeUtils.countTreeCommands(source, subScheme) + ")" : "";
+
+            Component labelComponent = MessageUtils.convertLegacyText(color + subScheme.label() + count)
+                    .clickEvent(group ? ClickEvent.runCommand(subCommand) : ClickEvent.suggestCommand(subCommand + " "))
+                    .hoverEvent(HoverEvent.hoverEvent(
+                            HoverEvent.Action.SHOW_TEXT,
+                            MessageUtils.convertLegacyText(descriptionColor + description)));
+
+            Component component = MessageUtils.convertLegacyText("&8" + indent + (last ? "└ " : "├ "))
+                    .append(labelComponent);
+
+            if (!group) {
+                component = addArgumentComponents(component, subScheme, parent);
+            }
+
+            if (source.sourceType() == SourceType.CONSOLE) {
+                component = addDescriptionComponent(component, subScheme, parent);
+            }
+
+            source.sendMessage(component);
+
+            if (group && depth > 1) {
+                sendTreeLines(source, subCommand, subScheme, parent, depth - 1, indent + (last ? "  " : "│ "));
+            }
+        }
+    }
+
+    private String getColor(String color, Property<String> defaultColor) {
+        return color == null ? getFulcrum().getMainConfig().get(FulcrumMessagesHolder.class, defaultColor) : color;
     }
 }

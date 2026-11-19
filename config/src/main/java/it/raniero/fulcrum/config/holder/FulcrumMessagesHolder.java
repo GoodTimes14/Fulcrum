@@ -51,6 +51,16 @@ public class FulcrumMessagesHolder implements SettingsHolder {
             createPath("command", "help", "preamble"),
             "%argument_color%Showing help for command: %label_color%%label%");
 
+    @Comment(value = "The header showed before the command help of commands using the tree help style")
+    public static final Property<String> COMMAND_HELP_TREE_HEADER = new StringProperty(
+            createPath("command", "help", "tree", "header"),
+            "&8&m          &r %label_color%&l%command% &8&m          ");
+
+    @Comment(value = "The footer showed to players after the command help of commands using the tree help style")
+    public static final Property<String> COMMAND_HELP_TREE_FOOTER = new StringProperty(
+            createPath("command", "help", "tree", "footer"),
+            "&8&m          &r &7Hover for info, click to use &8&m          ");
+
     @Comment(value = "The message that should be showed every time a command usage is shown")
     public static final Property<String> TERMINAL_UNKNOWN_COMMAND =
             new StringProperty(createPath("terminal", "unkown", "command"), "&cUnknown Command");
